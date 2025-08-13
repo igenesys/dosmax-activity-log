@@ -32,6 +32,14 @@ class Dosmax_Activity_Log {
             'dosmax-activity-log',
             array($this->admin_page, 'display_page')
         );
+        
+        add_options_page(
+            __('Dosmax Activity Log Settings', 'dosmax-activity-log'),
+            __('Dosmax Activity Log', 'dosmax-activity-log'),
+            'manage_options',
+            'dosmax-activity-log-settings',
+            array($this, 'display_settings_page')
+        );
     }
     
     /**
@@ -81,5 +89,60 @@ class Dosmax_Activity_Log {
         $details = $this->database->get_log_details($occurrence_id);
         
         wp_send_json_success($details);
+    }
+    
+    /**
+     * Display settings page
+     */
+    public function display_settings_page() {
+        // Handle form submission
+        if ($_POST && wp_verify_nonce($_POST['dosmax_settings_nonce'], 'dosmax_activity_log_settings')) {
+            $this->save_settings();
+        }
+        
+        include DOSMAX_ACTIVITY_LOG_PLUGIN_DIR . 'templates/settings-page.php';
+    }
+    
+    /**
+     * Save settings
+     */
+    private function save_settings() {
+        // Database settings
+        if (isset($_POST['use_external_db'])) {
+            update_option('dosmax_activity_log_use_external_db', true);
+            update_option('dosmax_activity_log_db_host', sanitize_text_field($_POST['db_host']));
+            update_option('dosmax_activity_log_db_name', sanitize_text_field($_POST['db_name']));
+            update_option('dosmax_activity_log_db_user', sanitize_text_field($_POST['db_user']));
+            update_option('dosmax_activity_log_db_password', $_POST['db_password']); // Don't sanitize password
+            update_option('dosmax_activity_log_db_prefix', sanitize_text_field($_POST['db_prefix']));
+        } else {
+            update_option('dosmax_activity_log_use_external_db', false);
+        }
+        
+        // Role settings
+        $allowed_roles = array();
+        if (isset($_POST['allowed_roles']) && is_array($_POST['allowed_roles'])) {
+            foreach ($_POST['allowed_roles'] as $role) {
+                $allowed_roles[] = sanitize_text_field($role);
+            }
+        }
+        update_option('dosmax_activity_log_allowed_roles', $allowed_roles);
+        
+        $excluded_roles = array();
+        if (isset($_POST['excluded_roles']) && is_array($_POST['excluded_roles'])) {
+            foreach ($_POST['excluded_roles'] as $role) {
+                $excluded_roles[] = sanitize_text_field($role);
+            }
+        }
+        update_option('dosmax_activity_log_excluded_roles', $excluded_roles);
+        
+        add_action('admin_notices', array($this, 'settings_saved_notice'));
+    }
+    
+    /**
+     * Show settings saved notice
+     */
+    public function settings_saved_notice() {
+        echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved successfully!', 'dosmax-activity-log') . '</p></div>';
     }
 }

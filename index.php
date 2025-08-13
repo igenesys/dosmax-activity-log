@@ -147,8 +147,13 @@
             </div>
             
             <div class="feature">
-                <h4>Database Integration</h4>
-                <p>Uses existing WP Activity Log tables (*_wsal_occurrences and *_wsal_metadata) with proper joins to display comprehensive event information including severity, date, user, IP, object, and event type.</p>
+                <h4>External Database Support</h4>
+                <p>Configurable database connections allow connecting to external databases with custom table prefixes. Perfect for centralized logging across multiple WordPress installations.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>Custom Table Prefixes</h4>
+                <p>Supports any table prefix configuration including complex multisite prefixes like <code>hdvs_20_siteshowroom_nl_</code> for maximum flexibility across different WordPress setups.</p>
             </div>
             
             <div class="feature">
@@ -159,6 +164,11 @@
             <div class="feature">
                 <h4>Detailed Event View</h4>
                 <p>Features "More details..." links that load comprehensive event metadata via AJAX, showing additional information like post titles, URLs, user agents, and custom metadata.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>Connection Testing</h4>
+                <p>Built-in database connection testing verifies external database connectivity, table existence, and required column structure before displaying logs.</p>
             </div>
         </div>
         
@@ -259,14 +269,34 @@ CREATE TABLE `wp_wsal_occurrences` (
         
         <h3>Configuration Options</h3>
         <div class="code-preview">
-            <pre>// Default plugin settings
+            <pre>// Database Configuration
+add_option('dosmax_activity_log_use_external_db', false);
+add_option('dosmax_activity_log_db_host', 'external-server.com');
+add_option('dosmax_activity_log_db_name', 'activity_logs');
+add_option('dosmax_activity_log_db_user', 'log_reader');
+add_option('dosmax_activity_log_db_prefix', 'hdvs_20_siteshowroom_nl_');
+
+// Role filtering settings
 add_option('dosmax_activity_log_excluded_roles', array('administrator'));
 add_option('dosmax_activity_log_allowed_roles', array('site-admin'));
 
-// Customizable role filtering
-$allowed_roles = get_option('dosmax_activity_log_allowed_roles', array('site-admin'));
-$excluded_roles = get_option('dosmax_activity_log_excluded_roles', array('administrator'));</pre>
+// Example usage with external database
+$database = new Dosmax_Database();
+$connection_test = $database->test_connection();
+if ($connection_test['success']) {
+    $logs = $database->get_filtered_logs();
+}</pre>
         </div>
+        
+        <h3>Admin Settings Interface</h3>
+        <p>The plugin includes a comprehensive settings page accessible via <strong>Settings → Dosmax Activity Log</strong> where administrators can:</p>
+        <ul>
+            <li><strong>Configure External Database:</strong> Set up connections to remote databases with custom credentials</li>
+            <li><strong>Set Table Prefixes:</strong> Configure custom table prefixes for different WordPress installations</li>
+            <li><strong>Test Connections:</strong> Verify database connectivity and table structure before use</li>
+            <li><strong>Manage Role Filtering:</strong> Configure which user roles to show or hide from the activity logs</li>
+            <li><strong>View Connection Status:</strong> Real-time feedback on database connection health</li>
+        </ul>
         
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666;">
             <p>Dosmax Activity Log v1.0.0 - WordPress Plugin for Enhanced Activity Monitoring</p>

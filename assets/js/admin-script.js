@@ -14,16 +14,16 @@ jQuery(document).ready(function($) {
         // Toggle visibility
         if ($detailsContainer.is(':visible')) {
             $detailsContainer.slideUp();
-            $link.text(dosmax_activity_log.strings.more_details);
+            $link.text('More details...');
             return;
         }
         
         // Show container and load details if not already loaded
         $detailsContainer.slideDown();
-        $link.text(dosmax_activity_log.strings.hide_details || 'Hide details...');
+        $link.text('Hide details...');
         
         // Check if details are already loaded
-        if ($detailsContent.find('.details-table').length > 0) {
+        if ($detailsContent.find('.event-details-container').length > 0) {
             return;
         }
         
@@ -51,56 +51,66 @@ jQuery(document).ready(function($) {
      * Format log details for display
      */
     function formatLogDetails(data) {
-        var html = '<h4>Event Details</h4>';
-        html += '<table class="details-table">';
+        var html = '<div class="event-details-container">';
         
-        // Basic event information
+        // Basic event information in a structured format similar to the screenshot
         if (data.occurrence) {
-            html += '<tr><th>Event ID</th><td>' + escapeHtml(data.occurrence.alert_id) + '</td></tr>';
-            html += '<tr><th>Severity</th><td>' + escapeHtml(data.occurrence.severity) + '</td></tr>';
-            html += '<tr><th>Date</th><td>' + formatDate(data.occurrence.created_on) + '</td></tr>';
-            html += '<tr><th>User</th><td>' + escapeHtml(data.occurrence.username || 'Unknown') + '</td></tr>';
-            html += '<tr><th>User ID</th><td>' + escapeHtml(data.occurrence.user_id || 'N/A') + '</td></tr>';
-            html += '<tr><th>User Roles</th><td>' + escapeHtml(data.occurrence.user_roles || 'N/A') + '</td></tr>';
-            html += '<tr><th>IP Address</th><td>' + escapeHtml(data.occurrence.client_ip) + '</td></tr>';
-            html += '<tr><th>User Agent</th><td>' + escapeHtml(data.occurrence.user_agent) + '</td></tr>';
-            html += '<tr><th>Object</th><td>' + escapeHtml(data.occurrence.object) + '</td></tr>';
-            html += '<tr><th>Event Type</th><td>' + escapeHtml(data.occurrence.event_type) + '</td></tr>';
-            html += '<tr><th>Session ID</th><td>' + escapeHtml(data.occurrence.session_id) + '</td></tr>';
+            html += '<div class="details-section">';
+            html += '<strong>EventType:</strong> ' + escapeHtml(data.occurrence.event_type || 'N/A') + '<br>';
+            html += '<strong>PostTitle:</strong> ' + escapeHtml(data.metadata && data.metadata.PostTitle ? data.metadata.PostTitle : 'N/A') + '<br>';
+            html += '<strong>PostUrl:</strong> ' + (data.metadata && data.metadata.PostUrl ? '<a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank">' + escapeHtml(data.metadata.PostUrl) + '</a>' : 'N/A') + '<br>';
+            html += '<strong>PostType:</strong> ' + escapeHtml(data.occurrence.post_type || 'N/A') + '<br>';
+            html += '<strong>PostStatus:</strong> ' + escapeHtml(data.occurrence.post_status || 'N/A') + '<br>';
+            html += '<strong>PostID:</strong> ' + escapeHtml(data.occurrence.post_id || 'N/A') + '<br>';
             
-            if (data.occurrence.post_id && data.occurrence.post_id != '0') {
-                html += '<tr><th>Post ID</th><td>' + escapeHtml(data.occurrence.post_id) + '</td></tr>';
-                html += '<tr><th>Post Type</th><td>' + escapeHtml(data.occurrence.post_type) + '</td></tr>';
-                html += '<tr><th>Post Status</th><td>' + escapeHtml(data.occurrence.post_status) + '</td></tr>';
-            }
-        }
-        
-        html += '</table>';
-        
-        // Metadata information
-        if (data.metadata && Object.keys(data.metadata).length > 0) {
-            html += '<h4>Additional Information</h4>';
-            html += '<table class="details-table">';
-            
-            for (var key in data.metadata) {
-                if (data.metadata.hasOwnProperty(key)) {
-                    var value = data.metadata[key];
-                    
-                    // Format specific metadata types
-                    if (key.toLowerCase().includes('url') || key.toLowerCase().includes('link')) {
-                        value = '<a href="' + escapeHtml(value) + '" target="_blank">' + escapeHtml(value) + '</a>';
-                    } else if (key.toLowerCase().includes('date') && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-                        value = formatDateString(value);
-                    } else {
-                        value = escapeHtml(value);
-                    }
-                    
-                    html += '<tr><th>' + escapeHtml(formatMetadataKey(key)) + '</th><td>' + value + '</td></tr>';
-                }
+            // Add editor link if available
+            if (data.metadata && data.metadata.EditorLinkPost) {
+                html += '<strong>EditorLinkPost:</strong> <a href="' + escapeHtml(data.metadata.EditorLinkPost) + '" target="_blank">' + escapeHtml(data.metadata.EditorLinkPost) + '</a><br>';
             }
             
-            html += '</table>';
+            html += '<strong>ClientIP:</strong> ' + escapeHtml(data.occurrence.client_ip || 'N/A') + '<br>';
+            html += '<strong>Severity:</strong> ' + escapeHtml(data.occurrence.severity || 'N/A') + '<br>';
+            html += '<strong>Object:</strong> ' + escapeHtml(data.occurrence.object || 'N/A') + '<br>';
+            html += '<strong>EventType:</strong> ' + escapeHtml(data.occurrence.event_type || 'N/A') + '<br>';
+            
+            // Add user agent with word wrap
+            html += '<strong>UserAgent:</strong> <span class="user-agent">' + escapeHtml(data.occurrence.user_agent || 'N/A') + '</span><br>';
+            html += '<strong>Username:</strong> ' + escapeHtml(data.occurrence.username || 'N/A') + '<br>';
+            html += '<strong>UserRoles:</strong> ' + escapeHtml(data.occurrence.user_roles || 'N/A') + '<br>';
+            html += '<strong>SessionID:</strong> ' + escapeHtml(data.occurrence.session_id || 'N/A') + '<br>';
+            
+            // Add revision link if available
+            if (data.metadata && data.metadata.RevisionLink) {
+                html += '<strong>RevisionLink:</strong> <a href="' + escapeHtml(data.metadata.RevisionLink) + '" target="_blank">' + escapeHtml(data.metadata.RevisionLink) + '</a><br>';
+            }
+            
+            // Add plugin data if available
+            if (data.metadata && data.metadata.PluginFile) {
+                html += '<strong>PluginFile:</strong> ' + escapeHtml(data.metadata.PluginFile) + '<br>';
+            }
+            
+            if (data.metadata && data.metadata.PluginData) {
+                html += '<strong>PluginData:</strong> <span class="plugin-data">' + escapeHtml(data.metadata.PluginData) + '</span><br>';
+            }
+            
+            // Add any old/new title changes
+            if (data.metadata && data.metadata.OldTitle) {
+                html += '<strong>OldTitle:</strong> ' + escapeHtml(data.metadata.OldTitle) + '<br>';
+            }
+            
+            if (data.metadata && data.metadata.NewTitle) {
+                html += '<strong>NewTitle:</strong> ' + escapeHtml(data.metadata.NewTitle) + '<br>';
+            }
+            
+            // Add post date if available
+            if (data.metadata && data.metadata.PostDate) {
+                html += '<strong>PostDate:</strong> ' + escapeHtml(data.metadata.PostDate) + '<br>';
+            }
+            
+            html += '</div>';
         }
+        
+        html += '</div>';
         
         return html;
     }

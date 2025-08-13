@@ -138,6 +138,44 @@ tr:hover .row-actions {
     font-size: 12px;
 }
 
+.event-details-container {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.details-section {
+    margin-bottom: 10px;
+}
+
+.details-section strong {
+    color: #333;
+    font-weight: bold;
+    display: inline-block;
+    width: auto;
+    margin-right: 5px;
+}
+
+.details-section br {
+    margin-bottom: 2px;
+}
+
+.user-agent {
+    word-break: break-all;
+    display: inline-block;
+    max-width: 600px;
+}
+
+.plugin-data {
+    word-break: break-all;
+    display: inline-block;
+    max-width: 600px;
+    color: #666;
+}
+
 .details-table {
     width: 100%;
     border-collapse: collapse;

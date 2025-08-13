@@ -1,5 +1,11 @@
 jQuery(document).ready(function($) {
     
+    // Check if dosmax_ajax is defined
+    if (typeof dosmax_ajax === 'undefined') {
+        console.error('dosmax_ajax object not found');
+        return;
+    }
+    
     /**
      * Handle "More details..." toggle
      */
@@ -30,27 +36,33 @@ jQuery(document).ready(function($) {
         // Load details via AJAX
         $detailsContent.html('<div class="loading">Loading...</div>');
         
+        console.log('Making AJAX request for occurrence ID:', occurrenceId);
+        
         $.post(dosmax_ajax.ajax_url, {
             action: 'dosmax_get_log_details',
             occurrence_id: occurrenceId,
             nonce: dosmax_ajax.nonce
         })
         .done(function(response) {
+            console.log('AJAX response:', response);
             if (response.success && response.data) {
-                $detailsContent.html(formatLogDetails(response.data));
+                $detailsContent.html(window.formatLogDetails(response.data));
             } else {
-                $detailsContent.html('<div class="error">Failed to load details.</div>');
+                $detailsContent.html('<div class="error">Failed to load details: ' + (response.data || 'Unknown error') + '</div>');
             }
         })
-        .fail(function() {
-            $detailsContent.html('<div class="error">Failed to load details.</div>');
+        .fail(function(xhr, status, error) {
+            console.error('AJAX failed:', status, error);
+            $detailsContent.html('<div class="error">Failed to load details: ' + error + '</div>');
         });
     });
     
-    /**
-     * Format log details for display
-     */
-    function formatLogDetails(data) {
+});
+
+/**
+ * Format log details for display
+ */
+window.formatLogDetails = function(data) {
         var html = '<div class="event-details-container">';
         
         // Basic event information in a structured format similar to the screenshot
@@ -113,7 +125,7 @@ jQuery(document).ready(function($) {
         html += '</div>';
         
         return html;
-    }
+    };
     
     /**
      * Format metadata key for display

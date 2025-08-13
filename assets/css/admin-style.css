@@ -1,0 +1,259 @@
+/* Dosmax Activity Log Admin Styles */
+
+.dosmax-activity-log-container {
+    margin-top: 20px;
+}
+
+#dosmax-activity-log-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#dosmax-activity-log-table th,
+#dosmax-activity-log-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#dosmax-activity-log-table th {
+    background-color: #f1f1f1;
+    font-weight: 600;
+}
+
+#dosmax-activity-log-table th a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    position: relative;
+}
+
+#dosmax-activity-log-table th a:hover {
+    color: #0073aa;
+}
+
+/* Column widths */
+.column-severity {
+    width: 100px;
+}
+
+.column-date {
+    width: 150px;
+}
+
+.column-user {
+    width: 120px;
+}
+
+.column-ip {
+    width: 120px;
+}
+
+.column-object {
+    width: 80px;
+}
+
+.column-event-type {
+    width: 100px;
+}
+
+.column-message {
+    width: auto;
+}
+
+/* Severity icons */
+.column-severity .dashicons {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.severity-label {
+    vertical-align: middle;
+}
+
+/* Severity colors */
+.column-severity .dashicons-info {
+    color: #0073aa;
+}
+
+.column-severity .dashicons-yes {
+    color: #46b450;
+}
+
+.column-severity .dashicons-warning {
+    color: #ffb900;
+}
+
+.column-severity .dashicons-dismiss {
+    color: #dc3232;
+}
+
+/* User roles */
+.user-roles {
+    font-size: 11px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Message content */
+.message-content {
+    margin-bottom: 5px;
+}
+
+/* Row actions */
+.row-actions {
+    color: #ddd;
+    font-size: 13px;
+    visibility: hidden;
+    padding: 2px 0 0;
+}
+
+tr:hover .row-actions {
+    visibility: visible;
+}
+
+.row-actions span {
+    display: inline;
+}
+
+.row-actions a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.row-actions a:hover {
+    color: #005177;
+}
+
+/* Details container */
+.details-container {
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 15px;
+}
+
+.details-content {
+    font-size: 12px;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.details-table th,
+.details-table td {
+    padding: 5px 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.details-table th {
+    background-color: #f1f1f1;
+    font-weight: 600;
+    width: 150px;
+}
+
+.details-table td {
+    word-break: break-all;
+}
+
+/* Loading indicator */
+.loading {
+    text-align: center;
+    padding: 10px;
+    color: #666;
+}
+
+/* Sorting indicators */
+.sorting-indicator {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sorting-indicator.asc:before {
+    content: "▲";
+    font-size: 10px;
+}
+
+.sorting-indicator.desc:before {
+    content: "▼";
+    font-size: 10px;
+}
+
+/* No items message */
+.no-items {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Pagination */
+.tablenav {
+    clear: both;
+    margin: 6px 0 4px;
+    height: 30px;
+}
+
+.tablenav-pages {
+    float: right;
+    display: block;
+    cursor: default;
+    height: 30px;
+    color: #646970;
+    font-size: 12px;
+    line-height: 30px;
+}
+
+.tablenav-pages .displaying-num {
+    margin-right: 7px;
+}
+
+.tablenav-pages .current-page {
+    font-weight: 600;
+}
+
+.tablenav-pages .button {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 26px;
+    height: 28px;
+    margin: 1px 1px 0 1px;
+    padding: 0 8px;
+    cursor: pointer;
+    border: 1px solid #7e8993;
+    border-radius: 3px;
+    background-color: #f6f7f7;
+    color: #2c3338;
+}
+
+.tablenav-pages .button:hover {
+    background-color: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .column-severity,
+    .column-ip,
+    .column-object,
+    .column-event-type {
+        display: none;
+    }
+    
+    .column-date {
+        width: 120px;
+    }
+    
+    .column-user {
+        width: 100px;
+    }
+}

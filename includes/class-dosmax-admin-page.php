@@ -20,13 +20,60 @@ class Dosmax_Admin_Page {
         $orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'created_on';
         $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : 'DESC';
         
-        // Get log entries
-        $logs = $this->database->get_filtered_logs($current_page, $this->per_page, $orderby, $order);
-        $total_items = $this->database->get_total_log_count();
+        // Get filter parameters
+        $filters = $this->get_filter_parameters();
+        $filter_user = $filters['user'];
+        $filter_object = $filters['object'];
+        $filter_ip = $filters['ip'];
+        $date_filter_type = $filters['date_type'];
+        $filter_date = $filters['date'];
+        $has_active_filters = $filters['has_active'];
+        
+        // Get available filter options
+        $available_users = $this->database->get_available_users();
+        $available_objects = $this->database->get_available_objects();
+        
+        // Get log entries with filters
+        $logs = $this->database->get_filtered_logs($current_page, $this->per_page, $orderby, $order, $filters);
+        $total_items = $this->database->get_total_log_count($filters);
         $total_pages = ceil($total_items / $this->per_page);
         
         // Include template
         include DOSMAX_ACTIVITY_LOG_PLUGIN_DIR . 'templates/admin-page.php';
+    }
+    
+    /**
+     * Get filter parameters from request
+     */
+    private function get_filter_parameters() {
+        $filter_user = isset($_GET['filter_user']) ? sanitize_text_field($_GET['filter_user']) : '';
+        $filter_object = isset($_GET['filter_object']) ? sanitize_text_field($_GET['filter_object']) : '';
+        $filter_ip = isset($_GET['filter_ip']) ? sanitize_text_field($_GET['filter_ip']) : '';
+        $date_filter_type = isset($_GET['date_filter_type']) ? sanitize_text_field($_GET['date_filter_type']) : '';
+        $filter_date = isset($_GET['filter_date']) ? sanitize_text_field($_GET['filter_date']) : '';
+        
+        // Validate date filter type
+        if (!in_array($date_filter_type, array('before', 'after', 'on'))) {
+            $date_filter_type = '';
+        }
+        
+        // Validate date format
+        if ($filter_date && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $filter_date)) {
+            $filter_date = '';
+        }
+        
+        // Check if any filters are active
+        $has_active_filters = !empty($filter_user) || !empty($filter_object) || 
+                             !empty($filter_ip) || (!empty($date_filter_type) && !empty($filter_date));
+        
+        return array(
+            'user' => $filter_user,
+            'object' => $filter_object,
+            'ip' => $filter_ip,
+            'date_type' => $date_filter_type,
+            'date' => $filter_date,
+            'has_active' => $has_active_filters
+        );
     }
     
     /**

@@ -14,6 +14,92 @@ if (!defined('ABSPATH')) {
     
     <div class="dosmax-activity-log-container">
         
+        <!-- Filters Section -->
+        <div class="dosmax-filters-container">
+            <form method="get" id="dosmax-filters-form">
+                <input type="hidden" name="page" value="dosmax-activity-log" />
+                
+                <div class="filters-row">
+                    <!-- User Filter -->
+                    <div class="filter-group">
+                        <label for="filter-user"><?php _e('User:', 'dosmax-activity-log'); ?></label>
+                        <select name="filter_user" id="filter-user">
+                            <option value=""><?php _e('All Users', 'dosmax-activity-log'); ?></option>
+                            <?php foreach ($available_users as $username) : ?>
+                                <option value="<?php echo esc_attr($username); ?>" <?php selected($filter_user, $username); ?>>
+                                    <?php echo esc_html($username); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <!-- Object Filter -->
+                    <div class="filter-group">
+                        <label for="filter-object"><?php _e('Object:', 'dosmax-activity-log'); ?></label>
+                        <select name="filter_object" id="filter-object">
+                            <option value=""><?php _e('All Objects', 'dosmax-activity-log'); ?></option>
+                            <?php foreach ($available_objects as $object) : ?>
+                                <option value="<?php echo esc_attr($object); ?>" <?php selected($filter_object, $object); ?>>
+                                    <?php echo esc_html(ucfirst($object)); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <!-- IP Address Filter -->
+                    <div class="filter-group">
+                        <label for="filter-ip"><?php _e('IP Address:', 'dosmax-activity-log'); ?></label>
+                        <input type="text" name="filter_ip" id="filter-ip" value="<?php echo esc_attr($filter_ip); ?>" placeholder="<?php _e('Enter IP address', 'dosmax-activity-log'); ?>" />
+                    </div>
+                </div>
+                
+                <div class="filters-row">
+                    <!-- Date Filter Type -->
+                    <div class="filter-group">
+                        <label for="date-filter-type"><?php _e('Date Filter:', 'dosmax-activity-log'); ?></label>
+                        <select name="date_filter_type" id="date-filter-type">
+                            <option value=""><?php _e('All Dates', 'dosmax-activity-log'); ?></option>
+                            <option value="before" <?php selected($date_filter_type, 'before'); ?>><?php _e('Before Date', 'dosmax-activity-log'); ?></option>
+                            <option value="after" <?php selected($date_filter_type, 'after'); ?>><?php _e('After Date', 'dosmax-activity-log'); ?></option>
+                            <option value="on" <?php selected($date_filter_type, 'on'); ?>><?php _e('On Date', 'dosmax-activity-log'); ?></option>
+                        </select>
+                    </div>
+                    
+                    <!-- Date Picker -->
+                    <div class="filter-group">
+                        <label for="filter-date"><?php _e('Date:', 'dosmax-activity-log'); ?></label>
+                        <input type="date" name="filter_date" id="filter-date" value="<?php echo esc_attr($filter_date); ?>" />
+                    </div>
+                    
+                    <!-- Filter Actions -->
+                    <div class="filter-group filter-actions">
+                        <input type="submit" class="button" value="<?php _e('Apply Filters', 'dosmax-activity-log'); ?>" />
+                        <a href="<?php echo admin_url('admin.php?page=dosmax-activity-log'); ?>" class="button"><?php _e('Clear Filters', 'dosmax-activity-log'); ?></a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Results Summary -->
+        <?php if ($has_active_filters) : ?>
+        <div class="filter-summary">
+            <p><strong><?php _e('Active Filters:', 'dosmax-activity-log'); ?></strong>
+                <?php if ($filter_user) : ?>
+                    <span class="filter-tag"><?php printf(__('User: %s', 'dosmax-activity-log'), $filter_user); ?></span>
+                <?php endif; ?>
+                <?php if ($filter_object) : ?>
+                    <span class="filter-tag"><?php printf(__('Object: %s', 'dosmax-activity-log'), $filter_object); ?></span>
+                <?php endif; ?>
+                <?php if ($filter_ip) : ?>
+                    <span class="filter-tag"><?php printf(__('IP: %s', 'dosmax-activity-log'), $filter_ip); ?></span>
+                <?php endif; ?>
+                <?php if ($date_filter_type && $filter_date) : ?>
+                    <span class="filter-tag"><?php printf(__('Date: %s %s', 'dosmax-activity-log'), ucfirst($date_filter_type), $filter_date); ?></span>
+                <?php endif; ?>
+            </p>
+        </div>
+        <?php endif; ?>
+        
         <!-- Pagination top -->
         <div class="tablenav top">
             <?php echo $this->pagination_links($current_page, $total_pages); ?>

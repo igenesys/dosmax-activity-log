@@ -25,17 +25,31 @@ class Dosmax_Activity_Log {
      * Add admin menu
      */
     public function add_admin_menu() {
-        add_management_page(
+        // Add main menu page
+        add_menu_page(
             __('Dosmax Activity Log', 'dosmax-activity-log'),
-            __('Dosmax Activity Log', 'dosmax-activity-log'),
+            __('Activity Log', 'dosmax-activity-log'),
+            'manage_options',
+            'dosmax-activity-log',
+            array($this->admin_page, 'display_page'),
+            'dashicons-list-view',
+            25
+        );
+        
+        // Add submenu pages
+        add_submenu_page(
+            'dosmax-activity-log',
+            __('Activity Logs', 'dosmax-activity-log'),
+            __('View Logs', 'dosmax-activity-log'),
             'manage_options',
             'dosmax-activity-log',
             array($this->admin_page, 'display_page')
         );
         
-        add_options_page(
-            __('Dosmax Activity Log Settings', 'dosmax-activity-log'),
-            __('Dosmax Activity Log', 'dosmax-activity-log'),
+        add_submenu_page(
+            'dosmax-activity-log',
+            __('Activity Log Settings', 'dosmax-activity-log'),
+            __('Settings', 'dosmax-activity-log'),
             'manage_options',
             'dosmax-activity-log-settings',
             array($this, 'display_settings_page')
@@ -46,7 +60,7 @@ class Dosmax_Activity_Log {
      * Enqueue admin scripts and styles
      */
     public function enqueue_admin_scripts($hook) {
-        if ($hook !== 'tools_page_dosmax-activity-log') {
+        if ($hook !== 'toplevel_page_dosmax-activity-log' && $hook !== 'activity-log_page_dosmax-activity-log-settings') {
             return;
         }
         

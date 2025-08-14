@@ -120,15 +120,19 @@ class Dosmax_Activity_Log {
         
         $occurrence_id = intval($_POST['occurrence_id']);
         
-        // Get occurrence details
-        $occurrence = $this->database->get_occurrence_details($occurrence_id);
+        // Get log details (includes occurrence and metadata)
+        $log_data = $this->database->get_log_details($occurrence_id);
         
-        if (!$occurrence) {
+        if (isset($log_data['error'])) {
+            wp_send_json_error($log_data['error']);
+        }
+        
+        if (!isset($log_data['occurrence']) || !$log_data['occurrence']) {
             wp_send_json_error('Occurrence not found');
         }
         
-        // Get metadata
-        $metadata = $this->database->get_occurrence_metadata($occurrence_id);
+        $occurrence = $log_data['occurrence'];
+        $metadata = $log_data['metadata'] ?? array();
         
         // Format details for display with enhanced product information
         $details = array(

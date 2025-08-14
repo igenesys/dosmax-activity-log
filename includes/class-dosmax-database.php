@@ -12,6 +12,13 @@ class Dosmax_Database {
     
     public function __construct() {
         global $wpdb;
+        
+        // Ensure wpdb is available
+        if (!$wpdb && function_exists('wp_load_alloptions')) {
+            // WordPress is loaded, but wpdb might not be set yet
+            $wpdb = $GLOBALS['wpdb'] ?? null;
+        }
+        
         $this->wpdb = $wpdb;
         $this->use_external_db = function_exists('get_option') ? get_option('dosmax_activity_log_use_external_db', false) : false;
         
@@ -75,7 +82,15 @@ class Dosmax_Database {
      * Get the appropriate database connection
      */
     private function get_db() {
-        return $this->use_external_db && $this->external_db ? $this->external_db : $this->wpdb;
+        $db = $this->use_external_db && $this->external_db ? $this->external_db : $this->wpdb;
+        
+        // Ensure we have a valid database connection
+        if (!$db) {
+            global $wpdb;
+            $db = $wpdb;
+        }
+        
+        return $db;
     }
     
     /**
@@ -172,7 +187,7 @@ class Dosmax_Database {
         
         $results = $db->get_results(
             $db->prepare($query, $per_page, $offset),
-            ARRAY_A
+            'ARRAY_A'
         );
         
         // Get metadata for each occurrence
@@ -282,7 +297,7 @@ class Dosmax_Database {
             $occurrence_id
         );
         
-        $results = $db->get_results($query, ARRAY_A);
+        $results = $db->get_results($query, 'ARRAY_A');
         
         $metadata = array();
         foreach ($results as $result) {
@@ -290,6 +305,20 @@ class Dosmax_Database {
         }
         
         return $metadata;
+    }
+    
+    /**
+     * Get occurrence details by ID
+     */
+    public function get_occurrence_details($occurrence_id) {
+        $db = $this->get_db();
+        
+        $query = $db->prepare(
+            "SELECT * FROM {$this->occurrences_table} WHERE id = %d",
+            $occurrence_id
+        );
+        
+        return $db->get_row($query, 'ARRAY_A');
     }
     
     /**
@@ -301,7 +330,7 @@ class Dosmax_Database {
         // Get occurrence data
         $occurrence = $db->get_row(
             $db->prepare("SELECT * FROM {$this->occurrences_table} WHERE id = %d", $occurrence_id),
-            ARRAY_A
+            'ARRAY_A'
         );
         
         if (!$occurrence) {

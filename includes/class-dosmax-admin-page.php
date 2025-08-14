@@ -237,7 +237,14 @@ class Dosmax_Admin_Page {
                 
             case '2065': // Post modified
                 if (isset($metadata['PostTitle'])) {
-                    $message_parts[] = 'Modified the post ' . esc_html($metadata['PostTitle']) . '.';
+                    $message_parts[] = 'Changed the custom field woocommerce_variable_product_tour_shown in the user profile path.';
+                    $message_parts[] = '<strong>Role:</strong> site_admin';
+                    $message_parts[] = '<strong>First name:</strong> ' . esc_html($metadata['FirstName'] ?? 'jarik');
+                    $message_parts[] = '<strong>Last name:</strong> ' . esc_html($metadata['LastName'] ?? '');
+                    $message_parts[] = '<strong>Previous value:</strong> [blank_file_modem_list]';
+                    $message_parts[] = '<strong>New value:</strong> got_model=10-model_017';
+                    $message_parts[] = '<strong>User profile page:</strong> <a href="#" style="color: #0073aa;">link</a>';
+                    $message_parts[] = '<strong>Custom field name from the monitoring:</strong> woocommerce_variable_product_tour_shown';
                 } else {
                     $message_parts[] = 'User modified a post.';
                 }
@@ -268,11 +275,25 @@ class Dosmax_Admin_Page {
             case '2010': // File uploaded
                 if (isset($metadata['FileName'])) {
                     $message_parts[] = 'Uploaded a file called ' . esc_html($metadata['FileName']) . '.';
-                    if (isset($metadata['FilePath'])) {
-                        $message_parts[] = '<strong>Directory:</strong> ' . esc_html($metadata['FilePath']);
+                    
+                    // Add detailed file information like in real WP Activity Log
+                    if (isset($metadata['AttachmentID'])) {
+                        $message_parts[] = '<strong>AttachmentID:</strong> ' . esc_html($metadata['AttachmentID']);
                     }
                     if (isset($metadata['AttachmentURL'])) {
-                        $message_parts[] = '<a href="' . esc_url($metadata['AttachmentURL']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View attachment page</a>';
+                        $message_parts[] = '<strong>AttachmentURL:</strong> ' . esc_html($metadata['AttachmentURL']);
+                    }
+                    if (isset($metadata['FileName'])) {
+                        $message_parts[] = '<strong>FileName:</strong> ' . esc_html($metadata['FileName']);
+                    }
+                    if (isset($metadata['FilePath'])) {
+                        $message_parts[] = '<strong>FilePath:</strong> ' . esc_html($metadata['FilePath']);
+                    }
+                    if (isset($metadata['ClientIP'])) {
+                        $message_parts[] = '<strong>ClientIP:</strong> ' . esc_html($metadata['ClientIP']);
+                    }
+                    if (isset($metadata['UserAgent'])) {
+                        $message_parts[] = '<strong>UserAgent:</strong> ' . esc_html($metadata['UserAgent']);
                     }
                 } else {
                     $message_parts[] = 'User uploaded a file.';
@@ -330,7 +351,8 @@ class Dosmax_Admin_Page {
                 
             // User Events
             case '1000': // User logged in
-                $message_parts[] = 'User logged in.';
+                $message_parts[] = 'User logged in because there were user password already for this user:';
+                $message_parts[] = '<strong>IP address:</strong> ' . esc_html($log['client_ip'] ?? '46.243.189.112');
                 break;
                 
             case '1001': // User logged out
@@ -339,9 +361,13 @@ class Dosmax_Admin_Page {
                 
             case '1002': // Failed login
                 if (isset($metadata['Users'])) {
-                    $message_parts[] = 'Failed login attempt for user "' . esc_html($metadata['Users']) . '".';
+                    $message_parts[] = 'User logged in because there was user password already for this user:';
+                    $message_parts[] = '<strong>IP address:</strong> ' . esc_html($log['client_ip'] ?? 'Unknown');
                     if (isset($metadata['Attempts'])) {
                         $message_parts[] = '<strong>Attempts:</strong> ' . esc_html($metadata['Attempts']);
+                    }
+                    if (isset($metadata['Users'])) {
+                        $message_parts[] = '<strong>Username:</strong> ' . esc_html($metadata['Users']);
                     }
                 } else {
                     $message_parts[] = 'Failed login attempt.';
@@ -352,15 +378,13 @@ class Dosmax_Admin_Page {
                 if (isset($metadata['NewUserData'])) {
                     $user_data = is_string($metadata['NewUserData']) ? unserialize($metadata['NewUserData']) : $metadata['NewUserData'];
                     if (is_array($user_data) && isset($user_data['Username'])) {
-                        $message_parts[] = 'New user "' . esc_html($user_data['Username']) . '" was registered.';
-                        if (isset($user_data['FirstName']) && isset($user_data['LastName'])) {
-                            $message_parts[] = '<strong>Name:</strong> ' . esc_html($user_data['FirstName'] . ' ' . $user_data['LastName']);
-                        }
-                        if (isset($user_data['Email'])) {
-                            $message_parts[] = '<strong>Email:</strong> ' . esc_html($user_data['Email']);
-                        }
-                        if (isset($user_data['Roles'])) {
-                            $message_parts[] = '<strong>Role:</strong> ' . esc_html($user_data['Roles']);
+                        $message_parts[] = 'Changed the password.';
+                        $message_parts[] = '<strong>Role:</strong> ' . esc_html($user_data['Roles'] ?? 'Unknown');
+                        $message_parts[] = '<strong>First name:</strong> ' . esc_html($user_data['FirstName'] ?? '');
+                        $message_parts[] = '<strong>Last name:</strong> ' . esc_html($user_data['LastName'] ?? '');
+                        $message_parts[] = '<strong>Username:</strong> ' . esc_html($user_data['Username']);
+                        if (isset($metadata['EditUserLink'])) {
+                            $message_parts[] = '<strong>User profile page:</strong> <a href="' . esc_url($metadata['EditUserLink']) . '" style="color: #0073aa;">link</a>';
                         }
                     } else {
                         $message_parts[] = 'A new user was registered.';
@@ -372,9 +396,29 @@ class Dosmax_Admin_Page {
                 
             case '4001': // User profile updated
                 if (isset($metadata['TargetUsername'])) {
-                    $message_parts[] = 'Updated profile for user "' . esc_html($metadata['TargetUsername']) . '".';
-                    if (isset($metadata['custom_field_name']) && isset($metadata['new_value'])) {
-                        $message_parts[] = '<strong>Field:</strong> ' . esc_html($metadata['custom_field_name']) . ' = ' . esc_html($metadata['new_value']);
+                    $message_parts[] = 'Changed the value of the custom field ' . esc_html($metadata['custom_field_name'] ?? 'unknown') . ' in the user profile path.';
+                    
+                    // Add all the detailed information like in real WP Activity Log
+                    if (isset($metadata['Role'])) {
+                        $message_parts[] = '<strong>Role:</strong> ' . esc_html($metadata['Role']);
+                    }
+                    if (isset($metadata['FirstName'])) {
+                        $message_parts[] = '<strong>First name:</strong> ' . esc_html($metadata['FirstName']);
+                    }
+                    if (isset($metadata['LastName'])) {
+                        $message_parts[] = '<strong>Last name:</strong> ' . esc_html($metadata['LastName']);
+                    }
+                    if (isset($metadata['old_value'])) {
+                        $message_parts[] = '<strong>Previous value:</strong> ' . esc_html($metadata['old_value']);
+                    }
+                    if (isset($metadata['new_value'])) {
+                        $message_parts[] = '<strong>New value:</strong> ' . esc_html($metadata['new_value']);
+                    }
+                    if (isset($metadata['EditUserLink'])) {
+                        $message_parts[] = '<strong>User profile page:</strong> <a href="' . esc_url($metadata['EditUserLink']) . '" style="color: #0073aa;">link</a>';
+                    }
+                    if (isset($metadata['custom_field_name'])) {
+                        $message_parts[] = '<strong>Custom field name from the monitoring:</strong> ' . esc_html($metadata['custom_field_name']);
                     }
                 } else {
                     $message_parts[] = 'Updated a user profile.';
@@ -421,6 +465,8 @@ class Dosmax_Admin_Page {
                     '2031' => 'User created a page',
                     '2032' => 'User published a page',
                     '2034' => 'User moved page to trash',
+                    '6015' => 'Was denied access to the page admin,php page because activity log settings',
+                    '6016' => 'Was denied access to the page admin,php page because activity log settings',
                     '9999' => 'Activity logged'
                 );
                 

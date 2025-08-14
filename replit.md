@@ -23,6 +23,7 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Built responsive filter interface with proper WordPress admin styling
 ✓ Reorganized admin menu structure with standalone "Activity Log" menu containing both logs and settings
 ✓ Hidden settings page from site-admin users for security - only administrators can access configuration
+✓ Added multiple security layers: menu hiding, capability checks, and early admin_init blocking
 
 # User Preferences
 

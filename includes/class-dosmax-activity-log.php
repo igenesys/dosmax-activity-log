@@ -17,6 +17,7 @@ class Dosmax_Activity_Log {
         
         // Add hooks
         add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('admin_init', array($this, 'restrict_settings_access'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_dosmax_get_log_details', array($this, 'ajax_get_log_details'));
     }
@@ -52,7 +53,7 @@ class Dosmax_Activity_Log {
                 'dosmax-activity-log',
                 __('Activity Log Settings', 'dosmax-activity-log'),
                 __('Settings', 'dosmax-activity-log'),
-                'manage_options',
+                'activate_plugins', // Higher capability required
                 'dosmax-activity-log-settings',
                 array($this, 'display_settings_page')
             );
@@ -60,10 +61,25 @@ class Dosmax_Activity_Log {
     }
     
     /**
+     * Restrict settings page access for site-admin users
+     */
+    public function restrict_settings_access() {
+        // Check if we're on the settings page
+        if (isset($_GET['page']) && $_GET['page'] === 'dosmax-activity-log-settings') {
+            // Block access for site-admin only users
+            if ($this->is_site_admin_only() || !current_user_can('activate_plugins')) {
+                wp_die(__('You do not have sufficient permissions to access this page.', 'dosmax-activity-log'), 403);
+            }
+        }
+    }
+    
+    /**
      * Enqueue admin scripts and styles
      */
     public function enqueue_admin_scripts($hook) {
-        if ($hook !== 'toplevel_page_dosmax-activity-log' && $hook !== 'activity-log_page_dosmax-activity-log-settings') {
+        // Load scripts for main page for all users, settings page only for admins
+        if ($hook !== 'toplevel_page_dosmax-activity-log' && 
+            ($hook !== 'activity-log_page_dosmax-activity-log-settings' || $this->is_site_admin_only())) {
             return;
         }
         
@@ -120,7 +136,9 @@ class Dosmax_Activity_Log {
         $user_roles = $user->roles;
         
         // Check if user has site-admin role and no other administrative roles
-        return in_array('site-admin', $user_roles) && !in_array('administrator', $user_roles) && !in_array('super_admin', $user_roles);
+        // Also check if they don't have activate_plugins capability
+        return (in_array('site-admin', $user_roles) && !in_array('administrator', $user_roles) && !in_array('super_admin', $user_roles)) 
+               || !current_user_can('activate_plugins');
     }
     
     /**
@@ -128,7 +146,7 @@ class Dosmax_Activity_Log {
      */
     public function display_settings_page() {
         // Check if user should have access to settings
-        if ($this->is_site_admin_only()) {
+        if ($this->is_site_admin_only() || !current_user_can('activate_plugins')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'dosmax-activity-log'));
         }
         

@@ -212,7 +212,7 @@ class Dosmax_Admin_Page {
      */
     public function format_detailed_message_for_column($log) {
         // Get metadata for this log entry
-        $metadata = $this->database->get_log_metadata($log['id']);
+        $metadata = $this->database->get_occurrence_metadata($log['id']);
         
         $message_parts = array();
         

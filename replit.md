@@ -24,6 +24,7 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Reorganized admin menu structure with standalone "Activity Log" menu containing both logs and settings
 ✓ Hidden settings page from site-admin users for security - only administrators can access configuration
 ✓ Added multiple security layers: menu hiding, capability checks, and early admin_init blocking
+✓ Updated date/time format to display as "14.08.2025" and "9:34:24.000 am" format
 
 # User Preferences
 

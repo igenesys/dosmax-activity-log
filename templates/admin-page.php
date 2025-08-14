@@ -167,7 +167,7 @@ if (!defined('ABSPATH')) {
                                 <span class="severity-label"><?php echo esc_html($this->get_severity_label($log['severity'])); ?></span>
                             </td>
                             <td class="column-date">
-                                <?php echo date('Y-m-d H:i:s', $log['created_on']); ?>
+                                <?php echo $this->format_custom_date($log['created_on']); ?>
                             </td>
                             <td class="column-user">
                                 <?php echo esc_html($log['username']); ?>

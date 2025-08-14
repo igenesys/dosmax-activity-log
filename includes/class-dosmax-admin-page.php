@@ -134,6 +134,23 @@ class Dosmax_Admin_Page {
     }
     
     /**
+     * Format date according to custom format (dd.mm.yyyy h:mm:ss.000 am/pm)
+     */
+    public function format_custom_date($timestamp) {
+        // Convert timestamp to DateTime
+        $date = new DateTime();
+        $date->setTimestamp($timestamp);
+        
+        // Format date as dd.mm.yyyy
+        $formatted_date = $date->format('d.m.Y');
+        
+        // Format time as h:mm:ss.000 am/pm
+        $formatted_time = $date->format('g:i:s.000 a');
+        
+        return $formatted_date . '<br>' . $formatted_time;
+    }
+    
+    /**
      * Generate pagination links
      */
     public function pagination_links($current_page, $total_pages) {

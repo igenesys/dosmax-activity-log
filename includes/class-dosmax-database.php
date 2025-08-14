@@ -13,7 +13,7 @@ class Dosmax_Database {
     public function __construct() {
         global $wpdb;
         $this->wpdb = $wpdb;
-        $this->use_external_db = get_option('dosmax_activity_log_use_external_db', false);
+        $this->use_external_db = function_exists('get_option') ? get_option('dosmax_activity_log_use_external_db', false) : false;
         
         // Initialize external database connection if needed
         if ($this->use_external_db) {
@@ -21,7 +21,7 @@ class Dosmax_Database {
         }
         
         // Get table names with custom prefix
-        $prefix = get_option('dosmax_activity_log_db_prefix', 'wp_');
+        $prefix = function_exists('get_option') ? get_option('dosmax_activity_log_db_prefix', 'wp_') : 'wp_';
         
         if ($this->use_external_db) {
             // For external DB, use the configured prefix directly
@@ -29,7 +29,7 @@ class Dosmax_Database {
             $this->metadata_table = $prefix . 'wsal_metadata';
         } else {
             // For current WordPress DB, support multisite
-            $blog_id = get_current_blog_id();
+            $blog_id = function_exists('get_current_blog_id') ? get_current_blog_id() : 1;
             if ($blog_id > 1) {
                 $this->occurrences_table = $wpdb->prefix . $blog_id . '_wsal_occurrences';
                 $this->metadata_table = $wpdb->prefix . $blog_id . '_wsal_metadata';
@@ -44,10 +44,12 @@ class Dosmax_Database {
      * Initialize external database connection
      */
     private function init_external_db() {
-        $db_host = get_option('dosmax_activity_log_db_host', DB_HOST);
-        $db_name = get_option('dosmax_activity_log_db_name', DB_NAME);
-        $db_user = get_option('dosmax_activity_log_db_user', DB_USER);
-        $db_password = get_option('dosmax_activity_log_db_password', DB_PASSWORD);
+        if (!function_exists('get_option')) return;
+        
+        $db_host = get_option('dosmax_activity_log_db_host', defined('DB_HOST') ? DB_HOST : 'localhost');
+        $db_name = get_option('dosmax_activity_log_db_name', defined('DB_NAME') ? DB_NAME : 'wordpress');
+        $db_user = get_option('dosmax_activity_log_db_user', defined('DB_USER') ? DB_USER : 'root');
+        $db_password = get_option('dosmax_activity_log_db_password', defined('DB_PASSWORD') ? DB_PASSWORD : '');
         
         try {
             $this->external_db = new wpdb($db_user, $db_password, $db_name, $db_host);

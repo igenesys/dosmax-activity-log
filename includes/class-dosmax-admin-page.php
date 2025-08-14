@@ -137,15 +137,16 @@ class Dosmax_Admin_Page {
      * Format date according to custom format (dd.mm.yyyy h:mm:ss.000 am/pm)
      */
     public function format_custom_date($timestamp) {
-        // Convert timestamp to DateTime
-        $date = new DateTime();
-        $date->setTimestamp($timestamp);
+        // Use WordPress date functions for better compatibility
+        if (empty($timestamp)) {
+            return '';
+        }
         
         // Format date as dd.mm.yyyy
-        $formatted_date = $date->format('d.m.Y');
+        $formatted_date = date('d.m.Y', $timestamp);
         
         // Format time as h:mm:ss.000 am/pm
-        $formatted_time = $date->format('g:i:s.000 a');
+        $formatted_time = date('g:i:s', $timestamp) . '.000 ' . date('a', $timestamp);
         
         return $formatted_date . '<br>' . $formatted_time;
     }

@@ -248,14 +248,10 @@ CREATE TABLE `wp_wsal_occurrences` (
         </div>
         
         <div class="demo-note">
-            <h4>WordPress Installation Required</h4>
-            <p>This plugin is designed to work within a WordPress environment. To see the full functionality:</p>
-            <ol>
-                <li>Install the plugin in a WordPress site with WP Activity Log active</li>
-                <li>Navigate to <strong>Tools → Dosmax Activity Log</strong> in the WordPress admin</li>
-                <li>The plugin will display filtered activity logs based on user roles</li>
-                <li>Click "More details..." on any log entry to view comprehensive event information</li>
-            </ol>
+            <h4>Live Demo Available</h4>
+            <p>Experience the full admin interface with working "More details" functionality:</p>
+            <a href="/demo-admin.php" class="button">View Working Admin Interface</a>
+            <p style="margin-top: 10px;"><small>Click to see the exact interface with interactive features as shown in your screenshots.</small></p>
         </div>
         
         <h3>Sample Data Integration</h3>

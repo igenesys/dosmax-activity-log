@@ -20,6 +20,7 @@ class Dosmax_Activity_Log {
         add_action('admin_init', array($this, 'restrict_settings_access'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_dosmax_get_log_details', array($this, 'ajax_get_log_details'));
+        add_action('admin_notices', array($this, 'show_activation_notices'));
     }
     
     /**
@@ -278,5 +279,18 @@ class Dosmax_Activity_Log {
      */
     public function settings_saved_notice() {
         echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved successfully!', 'dosmax-activity-log') . '</p></div>';
+    }
+    
+    /**
+     * Show activation notices
+     */
+    public function show_activation_notices() {
+        $notice = get_option('dosmax_activity_log_activation_notice', '');
+        if (!empty($notice)) {
+            echo '<div class="notice notice-warning is-dismissible">';
+            echo '<p><strong>Dosmax Activity Log:</strong> ' . esc_html($notice) . '</p>';
+            echo '</div>';
+            delete_option('dosmax_activity_log_activation_notice');
+        }
     }
 }

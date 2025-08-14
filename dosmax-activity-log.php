@@ -39,29 +39,50 @@ add_action('plugins_loaded', 'dosmax_activity_log_init');
  * Plugin activation hook
  */
 function dosmax_activity_log_activate() {
-    // Set default options
-    add_option('dosmax_activity_log_version', DOSMAX_ACTIVITY_LOG_VERSION);
-    add_option('dosmax_activity_log_excluded_roles', array('administrator'));
-    add_option('dosmax_activity_log_allowed_roles', array('site-admin'));
-    
-    // Database configuration options
-    add_option('dosmax_activity_log_db_host', DB_HOST);
-    add_option('dosmax_activity_log_db_name', DB_NAME);
-    add_option('dosmax_activity_log_db_user', DB_USER);
-    add_option('dosmax_activity_log_db_password', DB_PASSWORD);
-    add_option('dosmax_activity_log_db_prefix', 'wp_');
-    add_option('dosmax_activity_log_use_external_db', false);
-    
-    // Check if WP Activity Log tables exist (only if using current DB)
-    if (!get_option('dosmax_activity_log_use_external_db', false)) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'wsal_occurrences';
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-            wp_die(__('WP Activity Log plugin must be installed and activated first, or configure external database settings.', 'dosmax-activity-log'));
+    try {
+        // Set default options
+        add_option('dosmax_activity_log_version', DOSMAX_ACTIVITY_LOG_VERSION);
+        add_option('dosmax_activity_log_excluded_roles', array('administrator'));
+        add_option('dosmax_activity_log_allowed_roles', array('site-admin'));
+        
+        // Database configuration options
+        add_option('dosmax_activity_log_db_host', defined('DB_HOST') ? DB_HOST : 'localhost');
+        add_option('dosmax_activity_log_db_name', defined('DB_NAME') ? DB_NAME : '');
+        add_option('dosmax_activity_log_db_user', defined('DB_USER') ? DB_USER : '');
+        add_option('dosmax_activity_log_db_password', defined('DB_PASSWORD') ? DB_PASSWORD : '');
+        add_option('dosmax_activity_log_db_prefix', 'wp_');
+        add_option('dosmax_activity_log_use_external_db', false);
+        
+        // Check if WP Activity Log tables exist (only if using current DB)
+        if (!get_option('dosmax_activity_log_use_external_db', false)) {
+            global $wpdb;
+            
+            // Check if $wpdb is available
+            if (!isset($wpdb)) {
+                return; // Gracefully skip table check during activation
+            }
+            
+            $table_name = $wpdb->prefix . 'wsal_occurrences';
+            $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name));
+            
+            // Only show warning if tables don't exist, don't block activation
+            if (!$table_exists) {
+                // Store a notice to show later instead of blocking activation
+                add_option('dosmax_activity_log_activation_notice', 'WP Activity Log tables not found. Please install WP Activity Log plugin or configure external database settings.');
+            } else {
+                // Try to add index, ignore errors if index already exists
+                $wpdb->query("ALTER TABLE {$table_name} ADD INDEX IF NOT EXISTS idx_user_roles (user_roles)");
+            }
         }
         
-        // Add index for user_roles column for better performance
-        $wpdb->query("ALTER TABLE {$table_name} ADD INDEX idx_user_roles (user_roles)");
+        // Flush rewrite rules
+        if (function_exists('flush_rewrite_rules')) {
+            flush_rewrite_rules();
+        }
+        
+    } catch (Exception $e) {
+        // Log error but don't block activation
+        error_log('Dosmax Activity Log activation error: ' . $e->getMessage());
     }
 }
 

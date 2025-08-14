@@ -348,30 +348,7 @@ class Dosmax_Database {
         return $db->get_row($query, 'ARRAY_A');
     }
     
-    /**
-     * Get detailed log information for AJAX requests
-     */
-    public function get_log_details($occurrence_id) {
-        $db = $this->get_db();
-        
-        // Get occurrence data
-        $occurrence = $db->get_row(
-            $db->prepare("SELECT * FROM {$this->occurrences_table} WHERE id = %d", $occurrence_id),
-            'ARRAY_A'
-        );
-        
-        if (!$occurrence) {
-            return array('error' => 'Log entry not found');
-        }
-        
-        // Get metadata
-        $metadata = $this->get_occurrence_metadata($occurrence_id);
-        
-        return array(
-            'occurrence' => $occurrence,
-            'metadata' => $metadata
-        );
-    }
+
     
     /**
      * Test database connection

@@ -162,53 +162,15 @@ class Dosmax_Activity_Log {
         switch ($alert_id) {
             case '2101':
                 if (isset($metadata['PostTitle'])) {
-                    $message_parts[] = 'Viewed the product <strong>' . esc_html($metadata['PostTitle']) . '</strong> page.';
-                    
-                    if (isset($metadata['PostID'])) {
-                        $message_parts[] = 'Product ID: <strong>' . esc_html($metadata['PostID']) . '</strong>';
-                    }
-                    
-                    if (isset($metadata['ProductSKU'])) {
-                        $sku_value = $metadata['ProductSKU'] !== '' ? $metadata['ProductSKU'] : 'Not provided';
-                        $message_parts[] = 'Product SKU: <strong>' . esc_html($sku_value) . '</strong>';
-                    } else {
-                        $message_parts[] = 'Product SKU: <strong>Not provided</strong>';
-                    }
-                    
-                    if (isset($metadata['PostStatus'])) {
-                        $message_parts[] = 'Product status: <strong>' . esc_html($metadata['PostStatus']) . '</strong>';
-                    }
-                    
-                    if (isset($metadata['PostID'])) {
-                        $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
-                        $message_parts[] = '<a href="' . esc_url($edit_url) . '" class="view-product-link">View product in editor</a>';
-                    }
+                    // Main message matching screenshot format
+                    $message_parts[] = 'Viewed the post <strong>' . esc_html($metadata['PostTitle']) . '</strong>';
                 }
                 break;
                 
             case '2100':
                 if (isset($metadata['PostTitle'])) {
+                    // Main message for opening product in editor
                     $message_parts[] = 'Opened the product <strong>' . esc_html($metadata['PostTitle']) . '</strong> in the editor.';
-                    
-                    if (isset($metadata['PostID'])) {
-                        $message_parts[] = 'Product ID: <strong>' . esc_html($metadata['PostID']) . '</strong>';
-                    }
-                    
-                    if (isset($metadata['ProductSKU'])) {
-                        $sku_value = $metadata['ProductSKU'] !== '' ? $metadata['ProductSKU'] : 'Not provided';
-                        $message_parts[] = 'Product SKU: <strong>' . esc_html($sku_value) . '</strong>';
-                    } else {
-                        $message_parts[] = 'Product SKU: <strong>Not provided</strong>';
-                    }
-                    
-                    if (isset($metadata['PostStatus'])) {
-                        $message_parts[] = 'Product status: <strong>' . esc_html($metadata['PostStatus']) . '</strong>';
-                    }
-                    
-                    if (isset($metadata['PostID'])) {
-                        $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
-                        $message_parts[] = '<a href="' . esc_url($edit_url) . '" class="view-product-link">View product in editor</a>';
-                    }
                 }
                 break;
                 

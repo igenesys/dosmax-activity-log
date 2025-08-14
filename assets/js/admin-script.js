@@ -65,31 +65,61 @@ jQuery(document).ready(function($) {
 window.formatLogDetails = function(data) {
         var html = '<div class="event-details-container">';
         
-        // Basic event information in a structured format similar to the screenshot
-        if (data.occurrence) {
+        // Display enhanced message first (as shown in screenshot)
+        if (data.message) {
+            html += '<div class="event-message">' + data.message + '</div>';
+        }
+        
+        // Check for product viewing events (2101, 2100)
+        if ((data.event_id === '2101' || data.event_id === '2100') && data.metadata && data.metadata.PostTitle) {
+            // This matches the format shown in the screenshot
+            // No additional structured details needed as the message already contains all product info
+        } else if (data.event_id === '6023') {
+            // Access denied event
+            html += '<div class="access-denied-details">';
+            html += '<p>Access was denied to: <strong>' + escapeHtml(data.metadata && data.metadata.RequestedURL ? data.metadata.RequestedURL : 'admin.php?page=dosmax-activity-log-settings') + '</strong></p>';
+            html += '</div>';
+        } else {
+            // For other events, show structured data
             html += '<div class="details-section">';
-            html += '<strong>EventType:</strong> ' + escapeHtml(data.occurrence.event_type || 'N/A') + '<br>';
-            html += '<strong>PostTitle:</strong> ' + escapeHtml(data.metadata && data.metadata.PostTitle ? data.metadata.PostTitle : 'N/A') + '<br>';
-            html += '<strong>PostUrl:</strong> ' + (data.metadata && data.metadata.PostUrl ? '<a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank">' + escapeHtml(data.metadata.PostUrl) + '</a>' : 'N/A') + '<br>';
-            html += '<strong>PostType:</strong> ' + escapeHtml(data.occurrence.post_type || 'N/A') + '<br>';
-            html += '<strong>PostStatus:</strong> ' + escapeHtml(data.occurrence.post_status || 'N/A') + '<br>';
-            html += '<strong>PostID:</strong> ' + escapeHtml(data.occurrence.post_id || 'N/A') + '<br>';
+            html += '<strong>EventType:</strong> ' + escapeHtml(data.event_type || 'N/A') + '<br>';
+            
+            if (data.metadata && data.metadata.PostTitle) {
+                html += '<strong>PostTitle:</strong> ' + escapeHtml(data.metadata.PostTitle) + '<br>';
+            }
+            
+            if (data.metadata && data.metadata.PostUrl) {
+                html += '<strong>PostUrl:</strong> <a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank">' + escapeHtml(data.metadata.PostUrl) + '</a><br>';
+            }
+            
+            if (data.metadata && data.metadata.PostID) {
+                html += '<strong>PostID:</strong> ' + escapeHtml(data.metadata.PostID) + '<br>';
+            }
+            
+            if (data.metadata && data.metadata.PostStatus) {
+                html += '<strong>PostStatus:</strong> ' + escapeHtml(data.metadata.PostStatus) + '<br>';
+            }
             
             // Add editor link if available
             if (data.metadata && data.metadata.EditorLinkPost) {
                 html += '<strong>EditorLinkPost:</strong> <a href="' + escapeHtml(data.metadata.EditorLinkPost) + '" target="_blank">' + escapeHtml(data.metadata.EditorLinkPost) + '</a><br>';
             }
             
-            html += '<strong>ClientIP:</strong> ' + escapeHtml(data.occurrence.client_ip || 'N/A') + '<br>';
-            html += '<strong>Severity:</strong> ' + escapeHtml(data.occurrence.severity || 'N/A') + '<br>';
-            html += '<strong>Object:</strong> ' + escapeHtml(data.occurrence.object || 'N/A') + '<br>';
-            html += '<strong>EventType:</strong> ' + escapeHtml(data.occurrence.event_type || 'N/A') + '<br>';
+            html += '<strong>ClientIP:</strong> ' + escapeHtml(data.ip || 'N/A') + '<br>';
+            html += '<strong>Severity:</strong> ' + escapeHtml(data.severity || 'N/A') + '<br>';
+            html += '<strong>Object:</strong> ' + escapeHtml(data.object || 'N/A') + '<br>';
             
             // Add user agent with word wrap
-            html += '<strong>UserAgent:</strong> <span class="user-agent">' + escapeHtml(data.occurrence.user_agent || 'N/A') + '</span><br>';
-            html += '<strong>Username:</strong> ' + escapeHtml(data.occurrence.username || 'N/A') + '<br>';
-            html += '<strong>UserRoles:</strong> ' + escapeHtml(data.occurrence.user_roles || 'N/A') + '<br>';
-            html += '<strong>SessionID:</strong> ' + escapeHtml(data.occurrence.session_id || 'N/A') + '<br>';
+            if (data.metadata && data.metadata.UserAgent) {
+                html += '<strong>UserAgent:</strong> <span class="user-agent">' + escapeHtml(data.metadata.UserAgent) + '</span><br>';
+            }
+            
+            html += '<strong>Username:</strong> ' + escapeHtml(data.user || 'N/A') + '<br>';
+            html += '<strong>UserRoles:</strong> ' + escapeHtml(data.user_roles || 'N/A') + '<br>';
+            
+            if (data.metadata && data.metadata.SessionID) {
+                html += '<strong>SessionID:</strong> ' + escapeHtml(data.metadata.SessionID) + '<br>';
+            }
             
             // Add revision link if available
             if (data.metadata && data.metadata.RevisionLink) {

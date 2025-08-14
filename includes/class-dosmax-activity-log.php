@@ -119,9 +119,122 @@ class Dosmax_Activity_Log {
         }
         
         $occurrence_id = intval($_POST['occurrence_id']);
-        $details = $this->database->get_log_details($occurrence_id);
+        
+        // Get occurrence details
+        $occurrence = $this->database->get_occurrence_details($occurrence_id);
+        
+        if (!$occurrence) {
+            wp_send_json_error('Occurrence not found');
+        }
+        
+        // Get metadata
+        $metadata = $this->database->get_occurrence_metadata($occurrence_id);
+        
+        // Format details for display with enhanced product information
+        $details = array(
+            'date' => $this->admin_page->format_custom_date($occurrence['created_on']),
+            'user' => $occurrence['username'],
+            'user_roles' => $occurrence['user_roles'],
+            'ip' => $occurrence['client_ip'],
+            'event_id' => $occurrence['alert_id'],
+            'severity' => $occurrence['severity'],
+            'object' => $occurrence['object'],
+            'event_type' => $occurrence['event_type'],
+            'site' => $occurrence['site_id'],
+            'message' => $this->format_detailed_event_message($occurrence['alert_id'], $metadata, $occurrence),
+            'metadata' => $metadata
+        );
         
         wp_send_json_success($details);
+    }
+    
+    /**
+     * Format detailed event message with product information
+     */
+    private function format_detailed_event_message($alert_id, $metadata, $occurrence) {
+        $message_parts = array();
+        
+        // Main event description
+        switch ($alert_id) {
+            case '2101':
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Viewed the product <strong>' . esc_html($metadata['PostTitle']) . '</strong> page.';
+                    
+                    if (isset($metadata['PostID'])) {
+                        $message_parts[] = 'Product ID: <strong>' . esc_html($metadata['PostID']) . '</strong>';
+                    }
+                    
+                    if (isset($metadata['ProductSKU'])) {
+                        $sku_value = $metadata['ProductSKU'] !== '' ? $metadata['ProductSKU'] : 'Not provided';
+                        $message_parts[] = 'Product SKU: <strong>' . esc_html($sku_value) . '</strong>';
+                    } else {
+                        $message_parts[] = 'Product SKU: <strong>Not provided</strong>';
+                    }
+                    
+                    if (isset($metadata['PostStatus'])) {
+                        $message_parts[] = 'Product status: <strong>' . esc_html($metadata['PostStatus']) . '</strong>';
+                    }
+                    
+                    if (isset($metadata['PostID'])) {
+                        $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
+                        $message_parts[] = '<a href="' . esc_url($edit_url) . '" class="view-product-link">View product in editor</a>';
+                    }
+                }
+                break;
+                
+            case '2100':
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Opened the product <strong>' . esc_html($metadata['PostTitle']) . '</strong> in the editor.';
+                    
+                    if (isset($metadata['PostID'])) {
+                        $message_parts[] = 'Product ID: <strong>' . esc_html($metadata['PostID']) . '</strong>';
+                    }
+                    
+                    if (isset($metadata['ProductSKU'])) {
+                        $sku_value = $metadata['ProductSKU'] !== '' ? $metadata['ProductSKU'] : 'Not provided';
+                        $message_parts[] = 'Product SKU: <strong>' . esc_html($sku_value) . '</strong>';
+                    } else {
+                        $message_parts[] = 'Product SKU: <strong>Not provided</strong>';
+                    }
+                    
+                    if (isset($metadata['PostStatus'])) {
+                        $message_parts[] = 'Product status: <strong>' . esc_html($metadata['PostStatus']) . '</strong>';
+                    }
+                    
+                    if (isset($metadata['PostID'])) {
+                        $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
+                        $message_parts[] = '<a href="' . esc_url($edit_url) . '" class="view-product-link">View product in editor</a>';
+                    }
+                }
+                break;
+                
+            case '6023':
+                $message_parts[] = 'Was denied access to the page <strong>' . esc_html($metadata['RequestedURL'] ?? 'admin.php?page=dosmax-activity-log-settings') . '</strong>.';
+                break;
+                
+            default:
+                // Default message formatting
+                $base_messages = array(
+                    '1000' => 'User logged in',
+                    '1001' => 'User logged out',
+                    '2002' => 'User created a post revision',
+                    '2065' => 'User modified a post',
+                    '2086' => 'User changed post title',
+                    '5001' => 'User activated a plugin',
+                    '5002' => 'User deactivated a plugin',
+                );
+                
+                $base_message = isset($base_messages[$alert_id]) ? $base_messages[$alert_id] : 'Activity logged';
+                
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = $base_message . ': <strong>' . esc_html($metadata['PostTitle']) . '</strong>';
+                } else {
+                    $message_parts[] = $base_message;
+                }
+                break;
+        }
+        
+        return implode('<br>', $message_parts);
     }
     
     /**

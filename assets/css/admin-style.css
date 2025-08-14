@@ -136,6 +136,38 @@ tr:hover .row-actions {
     padding: 15px;
 }
 
+/* Enhanced event message styling */
+.event-message {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #fff;
+    border-left: 4px solid #0073aa;
+    line-height: 1.6;
+}
+
+.event-message strong {
+    color: #333;
+}
+
+.event-message .view-product-link {
+    color: #0073aa;
+    text-decoration: none;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.event-message .view-product-link:hover {
+    text-decoration: underline;
+}
+
+/* Access denied styling */
+.access-denied-details {
+    padding: 10px;
+    background-color: #fff2f2;
+    border-left: 4px solid #dc3232;
+    color: #721c24;
+}
+
 .details-content {
     font-size: 12px;
 }

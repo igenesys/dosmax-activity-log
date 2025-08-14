@@ -22,6 +22,7 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Created filter summary display showing active filters with tag-based UI
 ✓ Built responsive filter interface with proper WordPress admin styling
 ✓ Reorganized admin menu structure with standalone "Activity Log" menu containing both logs and settings
+✓ Hidden settings page from site-admin users for security - only administrators can access configuration
 
 # User Preferences
 

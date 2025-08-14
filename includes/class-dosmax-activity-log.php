@@ -46,14 +46,17 @@ class Dosmax_Activity_Log {
             array($this->admin_page, 'display_page')
         );
         
-        add_submenu_page(
-            'dosmax-activity-log',
-            __('Activity Log Settings', 'dosmax-activity-log'),
-            __('Settings', 'dosmax-activity-log'),
-            'manage_options',
-            'dosmax-activity-log-settings',
-            array($this, 'display_settings_page')
-        );
+        // Only show settings to users who are not site-admin
+        if (!$this->is_site_admin_only()) {
+            add_submenu_page(
+                'dosmax-activity-log',
+                __('Activity Log Settings', 'dosmax-activity-log'),
+                __('Settings', 'dosmax-activity-log'),
+                'manage_options',
+                'dosmax-activity-log-settings',
+                array($this, 'display_settings_page')
+            );
+        }
     }
     
     /**
@@ -106,9 +109,29 @@ class Dosmax_Activity_Log {
     }
     
     /**
+     * Check if current user is site-admin only
+     */
+    private function is_site_admin_only() {
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        
+        $user = wp_get_current_user();
+        $user_roles = $user->roles;
+        
+        // Check if user has site-admin role and no other administrative roles
+        return in_array('site-admin', $user_roles) && !in_array('administrator', $user_roles) && !in_array('super_admin', $user_roles);
+    }
+    
+    /**
      * Display settings page
      */
     public function display_settings_page() {
+        // Check if user should have access to settings
+        if ($this->is_site_admin_only()) {
+            wp_die(__('You do not have sufficient permissions to access this page.', 'dosmax-activity-log'));
+        }
+        
         // Handle form submission
         if ($_POST && wp_verify_nonce($_POST['dosmax_settings_nonce'], 'dosmax_activity_log_settings')) {
             $this->save_settings();

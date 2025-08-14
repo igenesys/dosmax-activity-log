@@ -45,6 +45,9 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Fixed "$ is not a function" error by replacing jQuery text escaping with vanilla JavaScript
 ✓ Created proper escapeHtml function using document.createElement for safe HTML escaping
 ✓ Eliminated jQuery dependency issues in formatLogDetails function
+✓ Redesigned "More details" display to show clean summary first (Post ID, Post type, Post status)
+✓ Technical metadata now hidden behind expandable "More details" section for better UX
+✓ Enhanced two-level detail expansion matching user requirements and WP Activity Log format
 
 # User Preferences
 

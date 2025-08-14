@@ -1,7 +1,19 @@
 jQuery(document).ready(function($) {
     
-    // WordPress AJAX setup
+    // WordPress AJAX setup with debugging
     console.log('Dosmax Activity Log initialized');
+    
+    // Check if AJAX variables are available
+    if (typeof dosmax_ajax === 'undefined') {
+        console.error('dosmax_ajax variable not found. AJAX functionality may not work.');
+        // Fallback for WordPress AJAX
+        window.dosmax_ajax = {
+            ajax_url: ajaxurl || '/wp-admin/admin-ajax.php',
+            nonce: 'fallback_nonce'
+        };
+    }
+    
+    console.log('AJAX settings:', dosmax_ajax);
     
     /**
      * Handle "More details..." toggle
@@ -13,6 +25,9 @@ jQuery(document).ready(function($) {
         var occurrenceId = $link.data('occurrence-id');
         var $detailsContainer = $('#details-' + occurrenceId);
         var $detailsContent = $detailsContainer.find('.details-content');
+        
+        console.log('Toggle details clicked for ID:', occurrenceId);
+        console.log('Container found:', $detailsContainer.length);
         
         // Toggle visibility
         if ($detailsContainer.is(':visible')) {
@@ -34,6 +49,7 @@ jQuery(document).ready(function($) {
         $detailsContent.html('<div class="loading">Loading...</div>');
         
         console.log('Making AJAX request for occurrence ID:', occurrenceId);
+        console.log('AJAX URL:', dosmax_ajax.ajax_url);
         
         $.post(dosmax_ajax.ajax_url, {
             action: 'dosmax_get_log_details',
@@ -73,32 +89,32 @@ window.formatLogDetails = function(data) {
         
         // Show Post ID
         if (data.metadata && data.metadata.PostID) {
-            html += 'Post ID: <strong>' + escapeHtml(data.metadata.PostID) + '</strong><br>';
+            html += 'Post ID: <strong>' + $('<div>').text(data.metadata.PostID).html() + '</strong><br>';
         }
         
         // Show Post type
         if (data.metadata && data.metadata.PostType) {
-            html += 'Post type: <strong>' + escapeHtml(data.metadata.PostType) + '</strong><br>';
+            html += 'Post type: <strong>' + $('<div>').text(data.metadata.PostType).html() + '</strong><br>';
         } else if (data.object) {
-            html += 'Post type: <strong>' + escapeHtml(data.object) + '</strong><br>';
+            html += 'Post type: <strong>' + $('<div>').text(data.object).html() + '</strong><br>';
         }
         
         // Show Post status
         if (data.metadata && data.metadata.PostStatus) {
-            html += 'Post status: <strong>' + escapeHtml(data.metadata.PostStatus) + '</strong><br>';
+            html += 'Post status: <strong>' + $('<div>').text(data.metadata.PostStatus).html() + '</strong><br>';
         }
         
         // Show editor link
         if (data.metadata && data.metadata.EditorLinkPost) {
-            html += '<a href="' + escapeHtml(data.metadata.EditorLinkPost) + '" target="_blank" class="view-post-link">View the post in editor</a><br>';
+            html += '<a href="' + $('<div>').text(data.metadata.EditorLinkPost).html() + '" target="_blank" class="view-post-link">View the post in editor</a><br>';
         } else if (data.metadata && data.metadata.PostID) {
-            var editUrl = '/wp-admin/post.php?post=' + data.metadata.PostID + '&action=edit';
+            var editUrl = '/wp-admin/post.php?post=' + $('<div>').text(data.metadata.PostID).html() + '&action=edit';
             html += '<a href="' + editUrl + '" target="_blank" class="view-post-link">View the post in editor</a><br>';
         }
         
         // Show URL if available
         if (data.metadata && data.metadata.PostUrl) {
-            html += '<a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank" class="view-link">URL</a><br>';
+            html += '<a href="' + $('<div>').text(data.metadata.PostUrl).html() + '" target="_blank" class="view-link">URL</a><br>';
         }
         
         html += '</div>';
@@ -110,53 +126,53 @@ window.formatLogDetails = function(data) {
         
         // Display all metadata in technical format (like screenshot 3)
         if (data.metadata && data.metadata.EditorLinkPost) {
-            html += '<strong>EditorLinkPost:</strong> ' + escapeHtml(data.metadata.EditorLinkPost) + '<br>';
+            html += '<strong>EditorLinkPost:</strong> ' + $('<div>').text(data.metadata.EditorLinkPost).html() + '<br>';
         }
         if (data.metadata && data.metadata.NewTitle) {
-            html += '<strong>NewTitle:</strong> ' + escapeHtml(data.metadata.NewTitle) + '<br>';
+            html += '<strong>NewTitle:</strong> ' + $('<div>').text(data.metadata.NewTitle).html() + '<br>';
         }
         if (data.metadata && data.metadata.OldTitle) {
-            html += '<strong>OldTitle:</strong> ' + escapeHtml(data.metadata.OldTitle) + '<br>';
+            html += '<strong>OldTitle:</strong> ' + $('<div>').text(data.metadata.OldTitle).html() + '<br>';
         }
         if (data.metadata && data.metadata.PostDate) {
-            html += '<strong>PostDate:</strong> ' + escapeHtml(data.metadata.PostDate) + '<br>';
+            html += '<strong>PostDate:</strong> ' + $('<div>').text(data.metadata.PostDate).html() + '<br>';
         }
         if (data.metadata && data.metadata.PostTitle) {
-            html += '<strong>PostTitle:</strong> ' + escapeHtml(data.metadata.PostTitle) + '<br>';
+            html += '<strong>PostTitle:</strong> ' + $('<div>').text(data.metadata.PostTitle).html() + '<br>';
         }
         if (data.metadata && data.metadata.PostUrl) {
-            html += '<strong>PostUrl:</strong> ' + escapeHtml(data.metadata.PostUrl) + '<br>';
+            html += '<strong>PostUrl:</strong> ' + $('<div>').text(data.metadata.PostUrl).html() + '<br>';
         }
         
         // Add core event data
-        html += '<strong>ClientIP:</strong> ' + escapeHtml(data.ip || 'N/A') + '<br>';
-        html += '<strong>Severity:</strong> ' + escapeHtml(data.severity || 'N/A') + ' (informational)<br>';
-        html += '<strong>Object:</strong> ' + escapeHtml(data.object || 'N/A') + '<br>';
-        html += '<strong>EventType:</strong> ' + escapeHtml(data.event_type || 'modified') + '<br>';
+        html += '<strong>ClientIP:</strong> ' + $('<div>').text(data.ip || 'N/A').html() + '<br>';
+        html += '<strong>Severity:</strong> ' + $('<div>').text(data.severity || 'N/A').html() + ' (informational)<br>';
+        html += '<strong>Object:</strong> ' + $('<div>').text(data.object || 'N/A').html() + '<br>';
+        html += '<strong>EventType:</strong> ' + $('<div>').text(data.event_type || 'modified').html() + '<br>';
         
         // Add user agent if available
         if (data.metadata && data.metadata.UserAgent) {
-            html += '<strong>UserAgent:</strong> ' + escapeHtml(data.metadata.UserAgent) + '<br>';
+            html += '<strong>UserAgent:</strong> ' + $('<div>').text(data.metadata.UserAgent).html() + '<br>';
         }
         
         // Add user info
-        html += '<strong>CurrentUserRoles:</strong> ' + escapeHtml(data.user_roles || 'N/A') + '<br>';
-        html += '<strong>Username:</strong> ' + escapeHtml(data.user || 'N/A') + '<br>';
+        html += '<strong>CurrentUserRoles:</strong> ' + $('<div>').text(data.user_roles || 'N/A').html() + '<br>';
+        html += '<strong>Username:</strong> ' + $('<div>').text(data.user || 'N/A').html() + '<br>';
         
         // Add session ID if available
         if (data.metadata && data.metadata.SessionID) {
-            html += '<strong>SessionID:</strong> ' + escapeHtml(data.metadata.SessionID) + '<br>';
+            html += '<strong>SessionID:</strong> ' + $('<div>').text(data.metadata.SessionID).html() + '<br>';
         }
         
         // Add post status and type
         if (data.metadata && data.metadata.PostStatus) {
-            html += '<strong>PostStatus:</strong> ' + escapeHtml(data.metadata.PostStatus) + '<br>';
+            html += '<strong>PostStatus:</strong> ' + $('<div>').text(data.metadata.PostStatus).html() + '<br>';
         }
         if (data.metadata && data.metadata.PostType) {
-            html += '<strong>PostType:</strong> ' + escapeHtml(data.metadata.PostType) + '<br>';
+            html += '<strong>PostType:</strong> ' + $('<div>').text(data.metadata.PostType).html() + '<br>';
         }
         if (data.metadata && data.metadata.PostID) {
-            html += '<strong>PostID:</strong> ' + escapeHtml(data.metadata.PostID) + '<br>';
+            html += '<strong>PostID:</strong> ' + $('<div>').text(data.metadata.PostID).html() + '<br>';
         }
         
         html += '</div>';

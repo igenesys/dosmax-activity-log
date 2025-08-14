@@ -157,11 +157,22 @@ class Dosmax_Admin_Page {
             return '';
         }
         
+        // Handle both Unix timestamp and MySQL datetime string
+        if (is_numeric($timestamp)) {
+            $unix_time = $timestamp;
+        } else {
+            $unix_time = strtotime($timestamp);
+        }
+        
+        if ($unix_time === false) {
+            return 'Invalid date';
+        }
+        
         // Format date as dd.mm.yyyy
-        $formatted_date = date('d.m.Y', $timestamp);
+        $formatted_date = date('d.m.Y', $unix_time);
         
         // Format time as h:mm:ss.000 am/pm
-        $formatted_time = date('g:i:s', $timestamp) . '.000 ' . date('a', $timestamp);
+        $formatted_time = date('g:i:s', $unix_time) . '.000 ' . date('a', $unix_time);
         
         return $formatted_date . '<br>' . $formatted_time;
     }

@@ -78,9 +78,8 @@ class Dosmax_Activity_Log {
      * Enqueue admin scripts and styles
      */
     public function enqueue_admin_scripts($hook) {
-        // Load scripts for main page for all users, settings page only for admins
-        if ($hook !== 'toplevel_page_dosmax-activity-log' && 
-            ($hook !== 'activity-log_page_dosmax-activity-log-settings' || $this->is_site_admin_only())) {
+        // Load scripts for all dosmax activity log pages
+        if (strpos($hook, 'dosmax-activity-log') === false) {
             return;
         }
         

@@ -221,7 +221,26 @@ class Dosmax_Admin_Page {
             // Post/Page Related Events
             case '2101': // Post viewed
                 if (isset($metadata['PostTitle'])) {
-                    $message_parts[] = 'Viewed the post ' . esc_html($metadata['PostTitle']) . '.';
+                    // Check if it's a product based on object type or post type
+                    if ($log['object'] === 'WooCommerce Product' || (isset($metadata['PostType']) && $metadata['PostType'] === 'product')) {
+                        $message_parts[] = 'Viewed the product ' . esc_html($metadata['PostTitle']) . ' page.';
+                        if (isset($metadata['PostID'])) {
+                            $message_parts[] = '<strong>Product ID:</strong> ' . esc_html($metadata['PostID']);
+                        }
+                        if (isset($metadata['ProductSKU'])) {
+                            $message_parts[] = '<strong>Product SKU:</strong> ' . esc_html($metadata['ProductSKU']);
+                        } else {
+                            $message_parts[] = '<strong>Product SKU:</strong> Not provided';
+                        }
+                        if (isset($metadata['PostStatus'])) {
+                            $message_parts[] = '<strong>Product status:</strong> ' . esc_html($metadata['PostStatus']);
+                        }
+                        if (isset($metadata['EditorLinkPost'])) {
+                            $message_parts[] = '<a href="' . esc_url($metadata['EditorLinkPost']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View product in editor</a>';
+                        }
+                    } else {
+                        $message_parts[] = 'Viewed the post ' . esc_html($metadata['PostTitle']) . '.';
+                    }
                 } else {
                     $message_parts[] = 'User viewed a post.';
                 }
@@ -229,7 +248,23 @@ class Dosmax_Admin_Page {
                 
             case '2100': // Post opened in editor
                 if (isset($metadata['PostTitle'])) {
-                    $message_parts[] = 'Opened the post ' . esc_html($metadata['PostTitle']) . ' in the editor.';
+                    // Check if it's a product
+                    if ($log['object'] === 'WooCommerce Product' || (isset($metadata['PostType']) && $metadata['PostType'] === 'product')) {
+                        $message_parts[] = 'Opened the product ' . esc_html($metadata['PostTitle']) . ' in the editor.';
+                        if (isset($metadata['PostID'])) {
+                            $message_parts[] = '<strong>Product ID:</strong> ' . esc_html($metadata['PostID']);
+                        }
+                        if (isset($metadata['ProductSKU'])) {
+                            $message_parts[] = '<strong>Product SKU:</strong> ' . esc_html($metadata['ProductSKU']);
+                        } else {
+                            $message_parts[] = '<strong>Product SKU:</strong> Not provided';
+                        }
+                        if (isset($metadata['PostStatus'])) {
+                            $message_parts[] = '<strong>Product status:</strong> ' . esc_html($metadata['PostStatus']);
+                        }
+                    } else {
+                        $message_parts[] = 'Opened the post ' . esc_html($metadata['PostTitle']) . ' in the editor.';
+                    }
                 } else {
                     $message_parts[] = 'User opened a post in the editor.';
                 }
@@ -482,29 +517,32 @@ class Dosmax_Admin_Page {
                 break;
         }
         
-        // Add essential details for post-related activities
-        if (in_array($log['alert_id'], array('2100', '2101', '2065', '2086', '2002', '2003', '2004', '2005', '2031', '2032', '2034'))) {
-            if (isset($metadata['PostID'])) {
-                $message_parts[] = '<strong>Post ID:</strong> ' . esc_html($metadata['PostID']);
-            }
-            if (isset($metadata['PostType'])) {
-                $message_parts[] = '<strong>Post type:</strong> ' . esc_html($metadata['PostType']);
-            } else if (!empty($log['object'])) {
-                $message_parts[] = '<strong>Post type:</strong> ' . esc_html($log['object']);
-            }
-            if (isset($metadata['PostStatus'])) {
-                $message_parts[] = '<strong>Post status:</strong> ' . esc_html($metadata['PostStatus']);
-            }
-            
-            // Add links
-            if (isset($metadata['PostUrl'])) {
-                $message_parts[] = '<a href="' . esc_url($metadata['PostUrl']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">URL</a>';
-            }
-            if (isset($metadata['EditorLinkPost'])) {
-                $message_parts[] = '<a href="' . esc_url($metadata['EditorLinkPost']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a>';
-            } else if (isset($metadata['PostID'])) {
-                $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
-                $message_parts[] = '<a href="' . esc_url($edit_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a>';
+        // Add essential details for post-related activities (skip if already handled for products)
+        if (in_array($log['alert_id'], array('2065', '2086', '2002', '2003', '2004', '2005', '2031', '2032', '2034'))) {
+            // Skip products as they're handled specially above
+            if (!($log['object'] === 'WooCommerce Product' || (isset($metadata['PostType']) && $metadata['PostType'] === 'product'))) {
+                if (isset($metadata['PostID'])) {
+                    $message_parts[] = '<strong>Post ID:</strong> ' . esc_html($metadata['PostID']);
+                }
+                if (isset($metadata['PostType'])) {
+                    $message_parts[] = '<strong>Post type:</strong> ' . esc_html($metadata['PostType']);
+                } else if (!empty($log['object'])) {
+                    $message_parts[] = '<strong>Post type:</strong> ' . esc_html($log['object']);
+                }
+                if (isset($metadata['PostStatus'])) {
+                    $message_parts[] = '<strong>Post status:</strong> ' . esc_html($metadata['PostStatus']);
+                }
+                
+                // Add links
+                if (isset($metadata['PostUrl'])) {
+                    $message_parts[] = '<a href="' . esc_url($metadata['PostUrl']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">URL</a>';
+                }
+                if (isset($metadata['EditorLinkPost'])) {
+                    $message_parts[] = '<a href="' . esc_url($metadata['EditorLinkPost']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a>';
+                } else if (isset($metadata['PostID'])) {
+                    $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
+                    $message_parts[] = '<a href="' . esc_url($edit_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a>';
+                }
             }
         }
         

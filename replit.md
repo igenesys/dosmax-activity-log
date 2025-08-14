@@ -61,6 +61,8 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Added comprehensive support for file uploads, plugin events, user management, and admin activities
 ✓ Implemented proper handling of serialized metadata (PluginData, NewUserData, etc.)
 ✓ Created detailed message formats matching actual WP Activity Log event patterns
+✓ Added WooCommerce product view formatting with Product ID, SKU, status, and editor links
+✓ Specialized handling for product events to match exact WP Activity Log format
 
 # User Preferences
 

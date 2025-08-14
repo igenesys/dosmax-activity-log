@@ -48,6 +48,9 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Redesigned "More details" display to show clean summary first (Post ID, Post type, Post status)
 ✓ Technical metadata now hidden behind expandable "More details" section for better UX
 ✓ Enhanced two-level detail expansion matching user requirements and WP Activity Log format
+✓ Updated display structure: essential info shown directly, technical metadata in expandable section
+✓ Added URL and editor links directly in main display for better accessibility
+✓ Technical "More details" shows complete metadata including UserAgent, SessionID, and CurrentUserID
 
 # User Preferences
 

@@ -141,12 +141,12 @@ function escapeHtml(text) {
 window.formatLogDetails = function(data) {
     var html = '<div class="event-details-container">';
     
-    // Display the main message
+    // Display the main message first
     if (data.message) {
-        html += '<div class="event-message" style="margin-bottom: 10px;">' + escapeHtml(data.message) + '</div>';
+        html += '<div class="event-message" style="margin-bottom: 8px; font-weight: normal;">' + escapeHtml(data.message) + '</div>';
     }
     
-    // Show clean summary first - just the key details
+    // Show essential details directly (always visible)
     html += '<div class="summary-details">';
     
     // Show Post ID
@@ -166,30 +166,36 @@ window.formatLogDetails = function(data) {
         html += '<strong>Post status:</strong> ' + escapeHtml(data.metadata.PostStatus) + '<br>';
     }
     
+    // Show URL link
+    if (data.metadata && data.metadata.PostUrl) {
+        html += '<a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank" style="color: #0073aa; text-decoration: none;">URL</a><br>';
+    }
+    
+    // Show editor link
+    if (data.metadata && data.metadata.EditorLinkPost) {
+        html += '<a href="' + escapeHtml(data.metadata.EditorLinkPost) + '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a><br>';
+    } else if (data.metadata && data.metadata.PostID) {
+        var editUrl = '/wp-admin/post.php?post=' + escapeHtml(data.metadata.PostID) + '&action=edit';
+        html += '<a href="' + editUrl + '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a><br>';
+    }
+    
     html += '</div>';
     
-    // Add "More details..." section for additional metadata
+    // Add "More details..." section for technical metadata
     html += '<div class="additional-details" style="margin-top: 10px;">';
     html += '<a href="#" class="show-more-details" data-occurrence-id="' + data.occurrence_id + '">More details...</a>';
     html += '<div class="full-metadata" style="display: none; margin-top: 10px; font-family: monospace; font-size: 11px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd;">';
     
-    // Display all technical metadata (only shown when "More details" is expanded)
+    // Technical metadata (only shown when "More details" is expanded)
     
-    // Show editor and view links first
-    if (data.metadata && data.metadata.EditorLinkPost) {
-        html += '<a href="' + escapeHtml(data.metadata.EditorLinkPost) + '" target="_blank" style="display: inline-block; margin-bottom: 8px; color: #0073aa;">View the post in editor</a><br>';
-    } else if (data.metadata && data.metadata.PostID) {
-        var editUrl = '/wp-admin/post.php?post=' + escapeHtml(data.metadata.PostID) + '&action=edit';
-        html += '<a href="' + editUrl + '" target="_blank" style="display: inline-block; margin-bottom: 8px; color: #0073aa;">View the post in editor</a><br>';
-    }
-    
-    if (data.metadata && data.metadata.PostUrl) {
-        html += '<a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank" style="display: inline-block; margin-bottom: 8px; color: #0073aa;">URL</a><br>';
-    }
-    
-    // Technical metadata in WP Activity Log format
+    // Show editor link with full URL
     if (data.metadata && data.metadata.EditorLinkPost) {
         html += '<strong>EditorLinkPost:</strong> ' + escapeHtml(data.metadata.EditorLinkPost) + '<br>';
+    }
+    
+    // Show all metadata in technical format
+    if (data.metadata && data.metadata.PostDate) {
+        html += '<strong>PostDate:</strong> ' + escapeHtml(data.metadata.PostDate) + '<br>';
     }
     if (data.metadata && data.metadata.PostTitle) {
         html += '<strong>PostTitle:</strong> ' + escapeHtml(data.metadata.PostTitle) + '<br>';
@@ -197,43 +203,43 @@ window.formatLogDetails = function(data) {
     if (data.metadata && data.metadata.PostUrl) {
         html += '<strong>PostUrl:</strong> ' + escapeHtml(data.metadata.PostUrl) + '<br>';
     }
-    if (data.metadata && data.metadata.PostDate) {
-        html += '<strong>PostDate:</strong> ' + escapeHtml(data.metadata.PostDate) + '<br>';
+    
+    // Core event data
+    html += '<strong>ClientIP:</strong> ' + escapeHtml(data.ip || 'N/A') + '<br>';
+    html += '<strong>Severity:</strong> ' + escapeHtml(data.severity || 'N/A') + ' (Informational)<br>';
+    html += '<strong>Object:</strong> ' + escapeHtml(data.object || 'N/A') + '<br>';
+    html += '<strong>EventType:</strong> ' + escapeHtml(data.event_type || 'modified') + '<br>';
+    
+    // User agent if available
+    if (data.metadata && data.metadata.UserAgent) {
+        html += '<strong>UserAgent:</strong> ' + escapeHtml(data.metadata.UserAgent) + '<br>';
     }
-    if (data.metadata && data.metadata.PostID) {
-        html += '<strong>PostID:</strong> ' + escapeHtml(data.metadata.PostID) + '<br>';
+    
+    // User info
+    html += '<strong>CurrentUserRoles:</strong> ' + escapeHtml(data.user_roles || 'N/A') + '<br>';
+    html += '<strong>Username:</strong> ' + escapeHtml(data.user || 'N/A') + '<br>';
+    
+    // User ID if available
+    if (data.metadata && data.metadata.CurrentUserID) {
+        html += '<strong>CurrentUserID:</strong> ' + escapeHtml(data.metadata.CurrentUserID) + '<br>';
+    } else if (data.user_id) {
+        html += '<strong>CurrentUserID:</strong> ' + escapeHtml(data.user_id) + '<br>';
     }
+    
+    // Session ID if available
+    if (data.metadata && data.metadata.SessionID) {
+        html += '<strong>SessionID:</strong> ' + escapeHtml(data.metadata.SessionID) + '<br>';
+    }
+    
+    // Post details (duplicated in technical view)
     if (data.metadata && data.metadata.PostStatus) {
         html += '<strong>PostStatus:</strong> ' + escapeHtml(data.metadata.PostStatus) + '<br>';
     }
     if (data.metadata && data.metadata.PostType) {
         html += '<strong>PostType:</strong> ' + escapeHtml(data.metadata.PostType) + '<br>';
     }
-    if (data.metadata && data.metadata.NewTitle) {
-        html += '<strong>NewTitle:</strong> ' + escapeHtml(data.metadata.NewTitle) + '<br>';
-    }
-    if (data.metadata && data.metadata.OldTitle) {
-        html += '<strong>OldTitle:</strong> ' + escapeHtml(data.metadata.OldTitle) + '<br>';
-    }
-    
-    // Add core event data
-    html += '<strong>ClientIP:</strong> ' + escapeHtml(data.ip || 'N/A') + '<br>';
-    html += '<strong>Severity:</strong> ' + escapeHtml(data.severity || 'N/A') + ' (informational)<br>';
-    html += '<strong>Object:</strong> ' + escapeHtml(data.object || 'N/A') + '<br>';
-    html += '<strong>EventType:</strong> ' + escapeHtml(data.event_type || 'modified') + '<br>';
-    
-    // Add user info
-    html += '<strong>CurrentUserRoles:</strong> ' + escapeHtml(data.user_roles || 'N/A') + '<br>';
-    html += '<strong>Username:</strong> ' + escapeHtml(data.user || 'N/A') + '<br>';
-    
-    // Add user agent if available
-    if (data.metadata && data.metadata.UserAgent) {
-        html += '<strong>UserAgent:</strong> ' + escapeHtml(data.metadata.UserAgent) + '<br>';
-    }
-    
-    // Add session ID if available
-    if (data.metadata && data.metadata.SessionID) {
-        html += '<strong>SessionID:</strong> ' + escapeHtml(data.metadata.SessionID) + '<br>';
+    if (data.metadata && data.metadata.PostID) {
+        html += '<strong>PostID:</strong> ' + escapeHtml(data.metadata.PostID) + '<br>';
     }
     
     html += '</div>';

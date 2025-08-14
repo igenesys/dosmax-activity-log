@@ -206,4 +206,102 @@ class Dosmax_Admin_Page {
         
         return $pagination;
     }
+    
+    /**
+     * Format detailed message for the Message column - shows all essential info by default
+     */
+    public function format_detailed_message_for_column($log) {
+        // Get metadata for this log entry
+        $metadata = $this->database->get_log_metadata($log['id']);
+        
+        $message_parts = array();
+        
+        // Main event description based on alert_id
+        switch ($log['alert_id']) {
+            case '2101':
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Viewed the post ' . esc_html($metadata['PostTitle']) . '.';
+                } else {
+                    $message_parts[] = 'User viewed a post.';
+                }
+                break;
+                
+            case '2100':
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Opened the post ' . esc_html($metadata['PostTitle']) . ' in the editor.';
+                } else {
+                    $message_parts[] = 'User opened a post in the editor.';
+                }
+                break;
+                
+            case '5001':
+                if (isset($metadata['PluginData']['Name'])) {
+                    $message_parts[] = 'Activated the plugin ' . esc_html($metadata['PluginData']['Name']) . '.';
+                    if (isset($metadata['PluginData']['Version'])) {
+                        $message_parts[] = '<strong>Version:</strong> ' . esc_html($metadata['PluginData']['Version']);
+                    }
+                    if (isset($metadata['PluginFile'])) {
+                        $message_parts[] = '<strong>Install location:</strong> ' . esc_html($metadata['PluginFile']);
+                    }
+                } else {
+                    $message_parts[] = 'User activated a plugin.';
+                }
+                break;
+                
+            case '5002':
+                if (isset($metadata['PluginData']['Name'])) {
+                    $message_parts[] = 'Deactivated the plugin ' . esc_html($metadata['PluginData']['Name']) . '.';
+                } else {
+                    $message_parts[] = 'User deactivated a plugin.';
+                }
+                break;
+                
+            default:
+                // For posts and other objects, try to show meaningful info
+                $base_messages = array(
+                    '1000' => 'User logged in',
+                    '1001' => 'User logged out', 
+                    '2002' => 'User created a post revision',
+                    '2065' => 'User modified a post',
+                    '2086' => 'User changed post title',
+                );
+                
+                $base_message = isset($base_messages[$log['alert_id']]) ? $base_messages[$log['alert_id']] : 'Activity logged';
+                
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = $base_message . ': ' . esc_html($metadata['PostTitle']) . '.';
+                } else {
+                    $message_parts[] = $base_message . '.';
+                }
+                break;
+        }
+        
+        // Add essential details for post-related activities
+        if (in_array($log['alert_id'], array('2100', '2101', '2065', '2086', '2002'))) {
+            if (isset($metadata['PostID'])) {
+                $message_parts[] = '<strong>Post ID:</strong> ' . esc_html($metadata['PostID']);
+            }
+            if (isset($metadata['PostType'])) {
+                $message_parts[] = '<strong>Post type:</strong> ' . esc_html($metadata['PostType']);
+            } else if (!empty($log['object'])) {
+                $message_parts[] = '<strong>Post type:</strong> ' . esc_html($log['object']);
+            }
+            if (isset($metadata['PostStatus'])) {
+                $message_parts[] = '<strong>Post status:</strong> ' . esc_html($metadata['PostStatus']);
+            }
+            
+            // Add links
+            if (isset($metadata['PostUrl'])) {
+                $message_parts[] = '<a href="' . esc_url($metadata['PostUrl']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">URL</a>';
+            }
+            if (isset($metadata['EditorLinkPost'])) {
+                $message_parts[] = '<a href="' . esc_url($metadata['EditorLinkPost']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a>';
+            } else if (isset($metadata['PostID'])) {
+                $edit_url = admin_url('post.php?post=' . $metadata['PostID'] . '&action=edit');
+                $message_parts[] = '<a href="' . esc_url($edit_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a>';
+            }
+        }
+        
+        return implode('<br>', $message_parts);
+    }
 }

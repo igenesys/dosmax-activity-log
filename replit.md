@@ -51,6 +51,9 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Updated display structure: essential info shown directly, technical metadata in expandable section
 ✓ Added URL and editor links directly in main display for better accessibility
 ✓ Technical "More details" shows complete metadata including UserAgent, SessionID, and CurrentUserID
+✓ Completely redesigned Message column to show full detailed content by default (Post ID, Post type, Post status, URL, editor links)
+✓ Created format_detailed_message_for_column() method to generate comprehensive message content directly in table
+✓ Message column now displays complete essential information without requiring expansion or AJAX calls
 
 # User Preferences
 

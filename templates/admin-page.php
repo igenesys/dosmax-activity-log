@@ -182,7 +182,7 @@ if (!defined('ABSPATH')) {
                         </td>
                         <td class="column-message">
                             <div class="message-content">
-                                <?php echo $this->format_event_message($log['alert_id'], array()); ?>
+                                <?php echo $this->format_detailed_message_for_column($log); ?>
                             </div>
                             <div class="row-actions">
                                 <span class="more-details">

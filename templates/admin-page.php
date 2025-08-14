@@ -102,7 +102,7 @@ if (!defined('ABSPATH')) {
         
         <!-- Pagination top -->
         <div class="tablenav top">
-            <?php echo $this->pagination_links($current_page, $total_pages); ?>
+            <?php echo $this->pagination_links($current_page, $total_pages, $total_items); ?>
         </div>
         
         <!-- Activity log table -->
@@ -153,44 +153,19 @@ if (!defined('ABSPATH')) {
                 </tr>
             </thead>
             <tbody>
-<?php
-                // Demo data for screenshots - matching your provided database structure
-                $demo_logs = array(
-                    array(
-                        'id' => '1',
-                        'severity' => '200',
-                        'created_on' => '2025-08-14 08:09:29',
-                        'username' => 'jarik',
-                        'user_roles' => 'site_admin',
-                        'client_ip' => '46.243.189.112',
-                        'object' => 'post',
-                        'event_type' => 'opened',
-                        'alert_id' => '2100',
-                        'message' => 'User opened a post in the editor: Home'
-                    ),
-                    array(
-                        'id' => '2',
-                        'severity' => '200',
-                        'created_on' => '2025-08-14 08:09:29',
-                        'username' => 'jarik',
-                        'user_roles' => 'site_admin',
-                        'client_ip' => '46.243.189.112',
-                        'object' => 'post',
-                        'event_type' => 'viewed',
-                        'alert_id' => '2101',
-                        'message' => 'User viewed a post: Home'
-                    )
-                );
-                ?>
-                
-                <?php foreach ($demo_logs as $log) : ?>
+                <?php if (!empty($logs)) : ?>
+                    <?php foreach ($logs as $log) : ?>
                     <tr data-occurrence-id="<?php echo esc_attr($log['id']); ?>">
                         <td class="column-severity">
-                            <span class="dashicons dashicons-yes" title="Low" style="color: #00a32a;"></span>
-                            <span class="severity-label">Low</span>
+                            <?php 
+                            $severity_level = $this->get_severity_level($log['severity']); 
+                            $severity_label = $this->get_severity_label($log['severity']); 
+                            ?>
+                            <span class="dashicons dashicons-<?php echo $severity_level['icon']; ?>" title="<?php echo esc_attr($severity_label); ?>" style="color: <?php echo $severity_level['color']; ?>;"></span>
+                            <span class="severity-label"><?php echo esc_html($severity_label); ?></span>
                         </td>
                         <td class="column-date">
-                            14.08.2025<br>8:09:29.000 am
+                            <?php echo $this->format_custom_date($log['created_on']); ?>
                         </td>
                         <td class="column-user">
                             <?php echo esc_html($log['username']); ?>
@@ -207,7 +182,7 @@ if (!defined('ABSPATH')) {
                         </td>
                         <td class="column-message">
                             <div class="message-content">
-                                <?php echo $log['message']; ?>
+                                <?php echo $this->format_event_message($log['alert_id'], array()); ?>
                             </div>
                             <div class="row-actions">
                                 <span class="more-details">
@@ -224,13 +199,23 @@ if (!defined('ABSPATH')) {
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px;">
+                            <p><?php _e('No activity logs found matching the current filters.', 'dosmax-activity-log'); ?></p>
+                            <?php if ($has_active_filters) : ?>
+                                <p><a href="<?php echo admin_url('admin.php?page=dosmax-activity-log'); ?>"><?php _e('Clear all filters', 'dosmax-activity-log'); ?></a></p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
         
         <!-- Pagination bottom -->
         <div class="tablenav bottom">
-            <?php echo $this->pagination_links($current_page, $total_pages); ?>
+            <?php echo $this->pagination_links($current_page, $total_pages, $total_items); ?>
         </div>
         
     </div>

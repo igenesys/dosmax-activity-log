@@ -1,7 +1,7 @@
 jQuery(document).ready(function($) {
     
-    // Demo environment - simplified AJAX setup
-    console.log('Dosmax Activity Log initialized for demo');
+    // WordPress AJAX setup
+    console.log('Dosmax Activity Log initialized');
     
     /**
      * Handle "More details..." toggle
@@ -35,10 +35,10 @@ jQuery(document).ready(function($) {
         
         console.log('Making AJAX request for occurrence ID:', occurrenceId);
         
-        $.post('/ajax-handler.php', {
+        $.post(dosmax_ajax.ajax_url, {
             action: 'dosmax_get_log_details',
             occurrence_id: occurrenceId,
-            nonce: 'demo_nonce'
+            nonce: dosmax_ajax.nonce
         })
         .done(function(response) {
             console.log('AJAX response:', response);

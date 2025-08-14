@@ -5,7 +5,7 @@
 class Dosmax_Admin_Page {
     
     private $database;
-    private $per_page = 25;
+    private $per_page = 100;
     
     public function __construct($database) {
         $this->database = $database;
@@ -107,6 +107,21 @@ class Dosmax_Admin_Page {
     }
     
     /**
+     * Get severity level information (icon and color)
+     */
+    public function get_severity_level($severity) {
+        $levels = array(
+            '100' => array('icon' => 'warning', 'color' => '#d63384'),  // Critical
+            '200' => array('icon' => 'yes', 'color' => '#00a32a'),      // Low  
+            '300' => array('icon' => 'info', 'color' => '#0073aa'),     // Medium
+            '400' => array('icon' => 'dismiss', 'color' => '#d63384'),  // High
+            '500' => array('icon' => 'warning', 'color' => '#d63384'),  // Critical
+        );
+        
+        return isset($levels[$severity]) ? $levels[$severity] : array('icon' => 'info', 'color' => '#0073aa');
+    }
+    
+    /**
      * Format event message
      */
     public function format_event_message($alert_id, $metadata) {
@@ -154,13 +169,13 @@ class Dosmax_Admin_Page {
     /**
      * Generate pagination links
      */
-    public function pagination_links($current_page, $total_pages) {
+    public function pagination_links($current_page, $total_pages, $total_items = null) {
         if ($total_pages <= 1) {
             return '';
         }
         
         $pagination = '<div class="tablenav-pages">';
-        $pagination .= '<span class="displaying-num">' . sprintf(__('%d items', 'dosmax-activity-log'), $this->database->get_total_log_count()) . '</span>';
+        $pagination .= '<span class="displaying-num">' . sprintf(__('%d items', 'dosmax-activity-log'), $total_items ?: $this->database->get_total_log_count()) . '</span>';
         
         if ($current_page > 1) {
             $pagination .= '<a class="prev-page button" href="' . add_query_arg('paged', $current_page - 1) . '">&lsaquo;</a>';

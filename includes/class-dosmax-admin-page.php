@@ -216,9 +216,10 @@ class Dosmax_Admin_Page {
         
         $message_parts = array();
         
-        // Main event description based on alert_id
+        // Main event description based on alert_id - comprehensive coverage
         switch ($log['alert_id']) {
-            case '2101':
+            // Post/Page Related Events
+            case '2101': // Post viewed
                 if (isset($metadata['PostTitle'])) {
                     $message_parts[] = 'Viewed the post ' . esc_html($metadata['PostTitle']) . '.';
                 } else {
@@ -226,7 +227,7 @@ class Dosmax_Admin_Page {
                 }
                 break;
                 
-            case '2100':
+            case '2100': // Post opened in editor
                 if (isset($metadata['PostTitle'])) {
                     $message_parts[] = 'Opened the post ' . esc_html($metadata['PostTitle']) . ' in the editor.';
                 } else {
@@ -234,11 +235,61 @@ class Dosmax_Admin_Page {
                 }
                 break;
                 
-            case '5001':
-                if (isset($metadata['PluginData']['Name'])) {
-                    $message_parts[] = 'Activated the plugin ' . esc_html($metadata['PluginData']['Name']) . '.';
-                    if (isset($metadata['PluginData']['Version'])) {
-                        $message_parts[] = '<strong>Version:</strong> ' . esc_html($metadata['PluginData']['Version']);
+            case '2065': // Post modified
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Modified the post ' . esc_html($metadata['PostTitle']) . '.';
+                } else {
+                    $message_parts[] = 'User modified a post.';
+                }
+                break;
+                
+            case '2086': // Post title changed
+                if (isset($metadata['OldTitle']) && isset($metadata['NewTitle'])) {
+                    $message_parts[] = 'Changed post title from "' . esc_html($metadata['OldTitle']) . '" to "' . esc_html($metadata['NewTitle']) . '".';
+                } elseif (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Changed post title: ' . esc_html($metadata['PostTitle']) . '.';
+                } else {
+                    $message_parts[] = 'User changed post title.';
+                }
+                break;
+                
+            case '2002': // Post revision created
+                if (isset($metadata['PostTitle'])) {
+                    $message_parts[] = 'Created a revision of the post ' . esc_html($metadata['PostTitle']) . '.';
+                    if (isset($metadata['RevisionLink'])) {
+                        $message_parts[] = '<a href="' . esc_url($metadata['RevisionLink']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View revision</a>';
+                    }
+                } else {
+                    $message_parts[] = 'User created a post revision.';
+                }
+                break;
+                
+            // File Upload Events
+            case '2010': // File uploaded
+                if (isset($metadata['FileName'])) {
+                    $message_parts[] = 'Uploaded a file called ' . esc_html($metadata['FileName']) . '.';
+                    if (isset($metadata['FilePath'])) {
+                        $message_parts[] = '<strong>Directory:</strong> ' . esc_html($metadata['FilePath']);
+                    }
+                    if (isset($metadata['AttachmentURL'])) {
+                        $message_parts[] = '<a href="' . esc_url($metadata['AttachmentURL']) . '" target="_blank" style="color: #0073aa; text-decoration: none;">View attachment page</a>';
+                    }
+                } else {
+                    $message_parts[] = 'User uploaded a file.';
+                }
+                break;
+                
+            // Plugin Events
+            case '5001': // Plugin activated
+                if (isset($metadata['PluginData'])) {
+                    $plugin_data = is_string($metadata['PluginData']) ? unserialize($metadata['PluginData']) : $metadata['PluginData'];
+                    if (is_array($plugin_data) && isset($plugin_data['Name'])) {
+                        $message_parts[] = 'Activated the plugin ' . esc_html($plugin_data['Name']) . '.';
+                        if (isset($plugin_data['Version'])) {
+                            $message_parts[] = '<strong>Version:</strong> ' . esc_html($plugin_data['Version']);
+                        }
+                    } else {
+                        $message_parts[] = 'Activated a plugin.';
                     }
                     if (isset($metadata['PluginFile'])) {
                         $message_parts[] = '<strong>Install location:</strong> ' . esc_html($metadata['PluginFile']);
@@ -248,28 +299,137 @@ class Dosmax_Admin_Page {
                 }
                 break;
                 
-            case '5002':
-                if (isset($metadata['PluginData']['Name'])) {
-                    $message_parts[] = 'Deactivated the plugin ' . esc_html($metadata['PluginData']['Name']) . '.';
+            case '5002': // Plugin deactivated
+                if (isset($metadata['PluginData'])) {
+                    $plugin_data = is_string($metadata['PluginData']) ? unserialize($metadata['PluginData']) : $metadata['PluginData'];
+                    if (is_array($plugin_data) && isset($plugin_data['Name'])) {
+                        $message_parts[] = 'Deactivated the plugin ' . esc_html($plugin_data['Name']) . '.';
+                    } else {
+                        $message_parts[] = 'Deactivated a plugin.';
+                    }
                 } else {
                     $message_parts[] = 'User deactivated a plugin.';
                 }
                 break;
                 
+            case '5010': // Plugin updated
+                if (isset($metadata['PluginData'])) {
+                    $plugin_data = is_string($metadata['PluginData']) ? unserialize($metadata['PluginData']) : $metadata['PluginData'];
+                    if (is_array($plugin_data) && isset($plugin_data['Name'])) {
+                        $message_parts[] = 'Updated the plugin ' . esc_html($plugin_data['Name']) . '.';
+                        if (isset($metadata['OldVersion']) && isset($plugin_data['Version'])) {
+                            $message_parts[] = '<strong>Version:</strong> ' . esc_html($metadata['OldVersion']) . ' → ' . esc_html($plugin_data['Version']);
+                        }
+                    } else {
+                        $message_parts[] = 'Updated a plugin.';
+                    }
+                } else {
+                    $message_parts[] = 'User updated a plugin.';
+                }
+                break;
+                
+            // User Events
+            case '1000': // User logged in
+                $message_parts[] = 'User logged in.';
+                break;
+                
+            case '1001': // User logged out
+                $message_parts[] = 'User logged out.';
+                break;
+                
+            case '1002': // Failed login
+                if (isset($metadata['Users'])) {
+                    $message_parts[] = 'Failed login attempt for user "' . esc_html($metadata['Users']) . '".';
+                    if (isset($metadata['Attempts'])) {
+                        $message_parts[] = '<strong>Attempts:</strong> ' . esc_html($metadata['Attempts']);
+                    }
+                } else {
+                    $message_parts[] = 'Failed login attempt.';
+                }
+                break;
+                
+            case '4000': // New user registered
+                if (isset($metadata['NewUserData'])) {
+                    $user_data = is_string($metadata['NewUserData']) ? unserialize($metadata['NewUserData']) : $metadata['NewUserData'];
+                    if (is_array($user_data) && isset($user_data['Username'])) {
+                        $message_parts[] = 'New user "' . esc_html($user_data['Username']) . '" was registered.';
+                        if (isset($user_data['FirstName']) && isset($user_data['LastName'])) {
+                            $message_parts[] = '<strong>Name:</strong> ' . esc_html($user_data['FirstName'] . ' ' . $user_data['LastName']);
+                        }
+                        if (isset($user_data['Email'])) {
+                            $message_parts[] = '<strong>Email:</strong> ' . esc_html($user_data['Email']);
+                        }
+                        if (isset($user_data['Roles'])) {
+                            $message_parts[] = '<strong>Role:</strong> ' . esc_html($user_data['Roles']);
+                        }
+                    } else {
+                        $message_parts[] = 'A new user was registered.';
+                    }
+                } else {
+                    $message_parts[] = 'A new user was registered.';
+                }
+                break;
+                
+            case '4001': // User profile updated
+                if (isset($metadata['TargetUsername'])) {
+                    $message_parts[] = 'Updated profile for user "' . esc_html($metadata['TargetUsername']) . '".';
+                    if (isset($metadata['custom_field_name']) && isset($metadata['new_value'])) {
+                        $message_parts[] = '<strong>Field:</strong> ' . esc_html($metadata['custom_field_name']) . ' = ' . esc_html($metadata['new_value']);
+                    }
+                } else {
+                    $message_parts[] = 'Updated a user profile.';
+                }
+                break;
+                
+            // Admin Page Events
+            case '6023': // Admin page access denied
+                if (isset($metadata['URL'])) {
+                    $message_parts[] = 'Was denied access to admin page "' . esc_html($metadata['URL']) . '".';
+                } else {
+                    $message_parts[] = 'Was denied access to an admin page.';
+                }
+                break;
+                
+            case '6000': // Admin page visited
+                if (isset($metadata['URL'])) {
+                    $message_parts[] = 'Visited admin page "' . esc_html($metadata['URL']) . '".';
+                } else {
+                    $message_parts[] = 'Visited an admin page.';
+                }
+                break;
+                
+            // IP Address Events  
+            case '6008': // Blocked IP attempt
+                if (isset($metadata['IPAddress'])) {
+                    $ip_data = is_string($metadata['IPAddress']) ? unserialize($metadata['IPAddress']) : $metadata['IPAddress'];
+                    if (is_array($ip_data) && !empty($ip_data)) {
+                        $message_parts[] = 'Blocked access attempt from IP: ' . esc_html(implode(', ', $ip_data)) . '.';
+                    } else {
+                        $message_parts[] = 'Blocked access attempt.';
+                    }
+                } else {
+                    $message_parts[] = 'Blocked access attempt.';
+                }
+                break;
+                
             default:
-                // For posts and other objects, try to show meaningful info
+                // Generic fallback with better handling
                 $base_messages = array(
-                    '1000' => 'User logged in',
-                    '1001' => 'User logged out', 
-                    '2002' => 'User created a post revision',
-                    '2065' => 'User modified a post',
-                    '2086' => 'User changed post title',
+                    '2003' => 'User created a post',
+                    '2004' => 'User published a post', 
+                    '2005' => 'User moved post to trash',
+                    '2031' => 'User created a page',
+                    '2032' => 'User published a page',
+                    '2034' => 'User moved page to trash',
+                    '9999' => 'Activity logged'
                 );
                 
                 $base_message = isset($base_messages[$log['alert_id']]) ? $base_messages[$log['alert_id']] : 'Activity logged';
                 
                 if (isset($metadata['PostTitle'])) {
                     $message_parts[] = $base_message . ': ' . esc_html($metadata['PostTitle']) . '.';
+                } elseif (isset($metadata['FileName'])) {
+                    $message_parts[] = $base_message . ': ' . esc_html($metadata['FileName']) . '.';
                 } else {
                     $message_parts[] = $base_message . '.';
                 }
@@ -277,7 +437,7 @@ class Dosmax_Admin_Page {
         }
         
         // Add essential details for post-related activities
-        if (in_array($log['alert_id'], array('2100', '2101', '2065', '2086', '2002'))) {
+        if (in_array($log['alert_id'], array('2100', '2101', '2065', '2086', '2002', '2003', '2004', '2005', '2031', '2032', '2034'))) {
             if (isset($metadata['PostID'])) {
                 $message_parts[] = '<strong>Post ID:</strong> ' . esc_html($metadata['PostID']);
             }

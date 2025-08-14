@@ -1,10 +1,7 @@
 jQuery(document).ready(function($) {
     
-    // Check if dosmax_ajax is defined
-    if (typeof dosmax_ajax === 'undefined') {
-        console.error('dosmax_ajax object not found');
-        return;
-    }
+    // Demo environment - simplified AJAX setup
+    console.log('Dosmax Activity Log initialized for demo');
     
     /**
      * Handle "More details..." toggle
@@ -38,10 +35,10 @@ jQuery(document).ready(function($) {
         
         console.log('Making AJAX request for occurrence ID:', occurrenceId);
         
-        $.post(dosmax_ajax.ajax_url, {
+        $.post('/ajax-handler.php', {
             action: 'dosmax_get_log_details',
             occurrence_id: occurrenceId,
-            nonce: dosmax_ajax.nonce
+            nonce: 'demo_nonce'
         })
         .done(function(response) {
             console.log('AJAX response:', response);

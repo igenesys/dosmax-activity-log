@@ -308,6 +308,33 @@ class Dosmax_Database {
     }
     
     /**
+     * Get log details for AJAX request
+     */
+    public function get_log_details($occurrence_id) {
+        $db = $this->get_db();
+        
+        // Get occurrence data
+        $occurrence_query = $db->prepare(
+            "SELECT * FROM {$this->occurrences_table} WHERE id = %d",
+            $occurrence_id
+        );
+        
+        $occurrence = $db->get_row($occurrence_query, 'ARRAY_A');
+        
+        if (!$occurrence) {
+            return array('error' => 'Occurrence not found');
+        }
+        
+        // Get metadata
+        $metadata = $this->get_occurrence_metadata($occurrence_id);
+        
+        return array(
+            'occurrence' => $occurrence,
+            'metadata' => $metadata
+        );
+    }
+    
+    /**
      * Get occurrence details by ID
      */
     public function get_occurrence_details($occurrence_id) {

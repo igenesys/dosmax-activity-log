@@ -54,6 +54,9 @@ This is a complete WordPress plugin called "Dosmax Activity Log" that integrates
 ✓ Completely redesigned Message column to show full detailed content by default (Post ID, Post type, Post status, URL, editor links)
 ✓ Created format_detailed_message_for_column() method to generate comprehensive message content directly in table
 ✓ Message column now displays complete essential information without requiring expansion or AJAX calls
+✓ Simplified AJAX "More details" to show all technical metadata in one expansion (no nested details)
+✓ Fixed JavaScript formatLogDetails function to eliminate confusing two-level detail system
+✓ Technical metadata now displays in single monospaced block with proper formatting
 
 # User Preferences
 

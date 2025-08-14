@@ -136,64 +136,15 @@ function escapeHtml(text) {
 }
 
 /**
- * Format log details for display - matches WP Activity Log format exactly
+ * Format log details for display - shows ALL technical metadata in one expansion
  */
 window.formatLogDetails = function(data) {
-    var html = '<div class="event-details-container">';
+    var html = '<div class="event-details-container" style="font-family: monospace; font-size: 11px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd;">';
     
-    // Display the main message first
-    if (data.message) {
-        html += '<div class="event-message" style="margin-bottom: 8px; font-weight: normal;">' + escapeHtml(data.message) + '</div>';
-    }
-    
-    // Show essential details directly (always visible)
-    html += '<div class="summary-details">';
-    
-    // Show Post ID
-    if (data.metadata && data.metadata.PostID) {
-        html += '<strong>Post ID:</strong> ' + escapeHtml(data.metadata.PostID) + '<br>';
-    }
-    
-    // Show Post type
-    if (data.metadata && data.metadata.PostType) {
-        html += '<strong>Post type:</strong> ' + escapeHtml(data.metadata.PostType) + '<br>';
-    } else if (data.object) {
-        html += '<strong>Post type:</strong> ' + escapeHtml(data.object) + '<br>';
-    }
-    
-    // Show Post status
-    if (data.metadata && data.metadata.PostStatus) {
-        html += '<strong>Post status:</strong> ' + escapeHtml(data.metadata.PostStatus) + '<br>';
-    }
-    
-    // Show URL link
-    if (data.metadata && data.metadata.PostUrl) {
-        html += '<a href="' + escapeHtml(data.metadata.PostUrl) + '" target="_blank" style="color: #0073aa; text-decoration: none;">URL</a><br>';
-    }
-    
-    // Show editor link
-    if (data.metadata && data.metadata.EditorLinkPost) {
-        html += '<a href="' + escapeHtml(data.metadata.EditorLinkPost) + '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a><br>';
-    } else if (data.metadata && data.metadata.PostID) {
-        var editUrl = '/wp-admin/post.php?post=' + escapeHtml(data.metadata.PostID) + '&action=edit';
-        html += '<a href="' + editUrl + '" target="_blank" style="color: #0073aa; text-decoration: none;">View the post in editor</a><br>';
-    }
-    
-    html += '</div>';
-    
-    // Add "More details..." section for technical metadata
-    html += '<div class="additional-details" style="margin-top: 10px;">';
-    html += '<a href="#" class="show-more-details" data-occurrence-id="' + data.occurrence_id + '">More details...</a>';
-    html += '<div class="full-metadata" style="display: none; margin-top: 10px; font-family: monospace; font-size: 11px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd;">';
-    
-    // Technical metadata (only shown when "More details" is expanded)
-    
-    // Show editor link with full URL
+    // Show ALL technical metadata in one block
     if (data.metadata && data.metadata.EditorLinkPost) {
         html += '<strong>EditorLinkPost:</strong> ' + escapeHtml(data.metadata.EditorLinkPost) + '<br>';
     }
-    
-    // Show all metadata in technical format
     if (data.metadata && data.metadata.PostDate) {
         html += '<strong>PostDate:</strong> ' + escapeHtml(data.metadata.PostDate) + '<br>';
     }
@@ -231,7 +182,7 @@ window.formatLogDetails = function(data) {
         html += '<strong>SessionID:</strong> ' + escapeHtml(data.metadata.SessionID) + '<br>';
     }
     
-    // Post details (duplicated in technical view)
+    // Post details
     if (data.metadata && data.metadata.PostStatus) {
         html += '<strong>PostStatus:</strong> ' + escapeHtml(data.metadata.PostStatus) + '<br>';
     }
@@ -241,9 +192,6 @@ window.formatLogDetails = function(data) {
     if (data.metadata && data.metadata.PostID) {
         html += '<strong>PostID:</strong> ' + escapeHtml(data.metadata.PostID) + '<br>';
     }
-    
-    html += '</div>';
-    html += '</div>';
     
     html += '</div>';
     
